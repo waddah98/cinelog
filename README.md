@@ -1,0 +1,124 @@
+# CineTrack
+
+CineTrack is a small movie discovery and tracking app built with React for a beginner React examination.
+You can browse a mock movie catalog, open a movie's details, keep a personal watchlist, mark movies as
+watched, and see simple watching statistics on your profile.
+
+Everything runs in the browser: there is **no backend, no login and no external API**. Movie data comes
+from a local file and your watchlist is saved in the browser's `localStorage`.
+
+## Main features
+
+- **Home** (`/`): featured movie banner, Trending, Top rated and Recently added sections.
+- **Explore** (`/explore`): search by title, filter by genre, and sort by rating, year or title. All three work together, and "Clear filters" resets them.
+- **Movie Details** (`/movies/:movieId`): poster, backdrop, metadata, genres, director, overview and cast, plus watchlist actions. An unknown id shows a "Movie not found" message.
+- **My Watchlist** (`/watchlist`): saved movies with an All / Planned / Watched filter. You can mark a movie as watched, move it back to planned, or remove it.
+- **Profile** (`/profile`): mock user, watchlist counts, favorite genres and recently watched movies, all calculated from the saved watchlist.
+- Unknown URLs show a "Page not found" fallback.
+- Changes to the watchlist are still there after you refresh the page.
+- Responsive layout (mobile, tablet and desktop) with a compact mobile menu.
+
+## Technology stack
+
+| Technology | Used for |
+|---|---|
+| React (JavaScript / JSX) | UI and application logic |
+| Vite | Development server and build |
+| React Router | Pages and the `:movieId` URL parameter |
+| CSS (with variables, flexbox, grid, media queries) | Styling and responsive layout |
+| Storybook | Developing and documenting components in isolation |
+| Lucide React | Icons |
+| Browser `localStorage` | Saving the watchlist |
+
+## Getting started
+
+You need [Node.js](https://nodejs.org/) (version 20 or newer).
+
+```bash
+# Install dependencies
+npm install
+
+# Run the React application (http://localhost:5173)
+npm run dev
+
+# Run Storybook (http://localhost:6006)
+npm run storybook
+
+# Create the production application build (output in dist/)
+npm run build
+
+# Build Storybook as a static site (output in storybook-static/)
+npm run build-storybook
+```
+
+## Architecture: Atomic Design
+
+Components are organised from the smallest to the largest:
+
+| Level | What it is | Components |
+|---|---|---|
+| **Atoms** | Smallest building blocks | Button, IconButton, Input, Select, Badge, Avatar, Poster, Rating |
+| **Molecules** | Small groups of atoms | SearchBar, MovieCard, GenreTag, MovieMetadata, StatCard, UserSummary, EmptyState |
+| **Organisms** | Larger, independent sections | Navbar, HeroBanner, MovieGrid, FilterPanel, MovieSection, ProfileSummary, WatchlistSummary, GenreStatistics |
+| **Templates** | Page layouts without real data | MainLayout, CatalogLayout |
+| **Pages** | Connect routes, data and hooks | HomePage, ExplorePage, MovieDetailsPage, WatchlistPage, ProfilePage (+ NotFoundPage fallback) |
+
+Components never load data themselves. Pages read the data and the hooks, then pass everything down through props.
+For example, `MovieCard` is reused on Home, Explore, Watchlist and Profile, and it always receives its
+`movie`, its `status` and its click handlers from the parent.
+
+### Folder structure
+
+```text
+cinetrack/
+├── .storybook/            Storybook configuration (main.js, preview.jsx)
+├── public/images/         Local poster/backdrop images and the avatar
+├── src/
+│   ├── components/
+│   │   ├── atoms/         One folder per component: Name.jsx, Name.css, Name.stories.jsx
+│   │   ├── molecules/
+│   │   └── organisms/
+│   ├── templates/         MainLayout, CatalogLayout
+│   ├── pages/             The five pages + NotFoundPage
+│   ├── hooks/             useLocalStorage, useWatchlist, useMovieFilters
+│   ├── data/              movies.js (catalog), user.js (mock user)
+│   ├── routes/            AppRouter.jsx (all routes)
+│   ├── styles/            variables.css (design tokens), globals.css
+│   ├── App.jsx
+│   └── main.jsx
+└── package.json
+```
+
+## Custom hooks
+
+- **`useLocalStorage(key, initialValue)`** works like `useState`, but it also saves the value in `localStorage` as JSON. If nothing is saved, or the saved text is broken, it falls back to `initialValue`. It knows nothing about movies.
+- **`useWatchlist()`** uses `useLocalStorage` and provides `addToWatchlist`, `removeFromWatchlist`, `markAsWatched`, `markAsPlanned`, `toggleWatchlist`, `isInWatchlist`, `getEntry` and `getStatus`. It prevents duplicates and ignores invalid saved entries.
+- **`useMovieFilters(movies)`** holds the search text, the selected genre and the sort option, and returns `filteredMovies` with all three applied together. It also provides `clearFilters()`.
+
+## Mock data and persistence
+
+- `src/data/movies.js` holds the only copy of the movie catalog: 20 movies with unique string ids (for example `"inception"`) and the same fields on every movie. Every page imports from this file.
+- `src/data/user.js` holds the static mock user shown on the Profile page.
+- The watchlist is saved under the `localStorage` key **`cinetrack-watchlist`** as an array of entries:
+
+  ```js
+  { movieId: "inception", status: "watched", addedAt: "2026-11-10T10:00:00.000Z", watchedAt: "2026-11-12T20:00:00.000Z" }
+  ```
+
+  Only the id and the user's tracking information are stored. Titles, posters and so on always come from the catalog.
+- Profile statistics are **not stored**: they are calculated from the watchlist every time the page renders, so they are always correct.
+- To reset the app, clear the site data in your browser (or delete the `cinetrack-watchlist` key in DevTools → Application → Local Storage).
+
+## Storybook
+
+Storybook shows every component on its own, outside the app. Stories sit next to their components (for example
+`MovieCard/MovieCard.stories.jsx`) and use the same mock data as the app. They cover the important states:
+default, disabled, empty, with data, active navigation, missing image, and so on. Use the **Controls** panel to change props and the
+**Actions** panel to see button clicks.
+
+## Assumptions and known limitations
+
+- No backend, no authentication and no external movie API. This is intentional.
+- The poster and backdrop images are generated placeholder artwork (local SVG files), not official movie posters, so the app works offline and avoids copyright problems. Movie text (overviews) is written for this project.
+- The watchlist is stored per browser. Another browser or device starts with an empty watchlist.
+- The Profile user is a static mock object and cannot be edited.

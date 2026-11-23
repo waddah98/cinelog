@@ -1,0 +1,52 @@
+.filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+/* Mobile: controls are stacked. */
+.filter-panel__controls {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+  align-items: end;
+}
+
+.filter-panel__clear .button {
+  width: 100%;
+}
+
+.filter-panel__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* Tablet: genre and sort side by side, clear button underneath. */
+@media (min-width: 640px) {
+  .filter-panel__controls {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .filter-panel__clear {
+    grid-column: span 2;
+  }
+}
+
+/* Desktop: everything in one row. */
+@media (min-width: 900px) {
+  .filter-panel {
+    padding: var(--space-lg);
+  }
+
+  .filter-panel__controls {
+    grid-template-columns: 1fr 1fr auto;
+  }
+
+  .filter-panel__clear {
+    grid-column: auto;
+  }
+}

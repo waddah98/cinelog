@@ -1,0 +1,78 @@
+.hero-banner {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 460px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--color-surface);
+}
+
+.hero-banner__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dark gradient so the white text is always readable on top of the image. */
+.hero-banner__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(14, 15, 19, 0.95) 15%, rgba(14, 15, 19, 0.4) 70%, rgba(14, 15, 19, 0.15));
+}
+
+.hero-banner__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-md);
+  max-width: 640px;
+  padding: var(--space-lg);
+}
+
+.hero-banner__title {
+  font-size: var(--font-size-xxl);
+  line-height: 1.1;
+}
+
+.hero-banner__genres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.hero-banner__overview {
+  color: var(--color-text);
+  opacity: 0.9;
+}
+
+.hero-banner__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* Smaller buttons on phones so both fit. */
+@media (max-width: 480px) {
+  .hero-banner__actions .button--large {
+    padding: 10px 16px;
+    font-size: var(--font-size-md);
+  }
+}
+
+@media (min-width: 768px) {
+  .hero-banner {
+    min-height: 520px;
+  }
+
+  .hero-banner__content {
+    padding: var(--space-xl);
+  }
+
+  .hero-banner__title {
+    font-size: 3.25rem;
+  }
+}

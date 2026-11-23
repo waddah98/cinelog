@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#4e8a5e"/><stop offset="1" stop-color="#14281d"/></linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#e0f2c0" stop-opacity="0.85"/><stop offset="1" stop-color="#e0f2c0" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#bg)"/>
+  <circle cx="172" cy="144" r="170" fill="url(#glow)" opacity="0.55"/>
+  <circle cx="172" cy="144" r="70" fill="#e0f2c0" opacity="0.18"/>
+  <rect x="0" y="380" width="400" height="220" fill="#14281d" opacity="0.55"/>
+  <text x="40" y="512" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="42" fill="#e0f2c0" letter-spacing="1"><tspan x="40" dy="0">PARASITE</tspan></text>
+  <text x="40" y="575" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#e0f2c0" opacity="0.75" letter-spacing="4">2019 · CINETRACK</text>
+</svg>

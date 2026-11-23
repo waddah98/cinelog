@@ -1,0 +1,8 @@
+.catalog-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.catalog-layout__filters {
+  margin-bottom: var(--space-lg);
+}

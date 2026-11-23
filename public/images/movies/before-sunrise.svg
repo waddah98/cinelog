@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#e6a57e"/><stop offset="1" stop-color="#22263a"/></linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffe9d6" stop-opacity="0.85"/><stop offset="1" stop-color="#ffe9d6" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#bg)"/>
+  <circle cx="242" cy="234" r="170" fill="url(#glow)" opacity="0.55"/>
+  <circle cx="242" cy="234" r="70" fill="#ffe9d6" opacity="0.18"/>
+  <rect x="0" y="380" width="400" height="220" fill="#22263a" opacity="0.55"/>
+  <text x="40" y="464" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="42" fill="#ffe9d6" letter-spacing="1"><tspan x="40" dy="0">BEFORE</tspan><tspan x="40" dy="48">SUNRISE</tspan></text>
+  <text x="40" y="575" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#ffe9d6" opacity="0.75" letter-spacing="4">1995 · CINETRACK</text>
+</svg>

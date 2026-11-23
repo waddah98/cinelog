@@ -1,0 +1,111 @@
+.movie-details__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  align-self: flex-start;
+  margin-bottom: calc(var(--space-lg) * -1);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.movie-details__back:hover {
+  color: var(--color-accent);
+}
+
+.movie-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.movie-details__backdrop .poster {
+  max-height: 360px;
+  border-radius: var(--radius-lg);
+}
+
+/* Mobile first: poster and information are stacked. */
+.movie-details__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin-top: -80px;
+  padding: 0 var(--space-md);
+}
+
+.movie-details__poster {
+  width: 180px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.movie-details__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.movie-details__genres,
+.movie-details__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.movie-details__status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.movie-details__label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.movie-details__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.movie-details__section h2 {
+  font-size: var(--font-size-md);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.movie-details__cast {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.movie-details__cast li {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface-raised);
+  font-size: var(--font-size-sm);
+}
+
+/* Tablet and desktop: poster on the left, information on the right. */
+@media (min-width: 768px) {
+  .movie-details__main {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: -140px;
+    padding: 0 var(--space-xl);
+  }
+
+  .movie-details__poster {
+    width: 260px;
+  }
+
+  .movie-details__info {
+    padding-top: 150px;
+  }
+}

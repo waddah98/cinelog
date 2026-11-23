@@ -1,0 +1,38 @@
+.search-bar {
+  position: relative;
+  width: 100%;
+}
+
+.search-bar__icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+/* Make room for the icon on the left and the clear button on the right. */
+.search-bar .input__field {
+  padding-left: 42px;
+  padding-right: 48px;
+}
+
+/* Hide the browser's own "x" in search inputs; we have our own clear button. */
+.search-bar input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-bar__clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.search-bar__clear .icon-button {
+  width: 30px;
+  height: 30px;
+  background-color: transparent;
+  border: none;
+}

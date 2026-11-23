@@ -1,0 +1,11 @@
+.watchlist-summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+@media (min-width: 640px) {
+  .watchlist-summary {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

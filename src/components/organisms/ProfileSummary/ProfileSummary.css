@@ -1,0 +1,28 @@
+.profile-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-surface-raised), var(--color-surface));
+}
+
+.profile-summary__details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+@media (min-width: 640px) {
+  .profile-summary {
+    align-items: flex-start;
+    padding: var(--space-xl);
+  }
+
+  .profile-summary__details {
+    justify-content: flex-start;
+  }
+}

@@ -1,0 +1,23 @@
+.poster {
+  width: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface-raised);
+}
+
+.poster--fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border: 1px dashed var(--color-border);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.poster__fallback-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}

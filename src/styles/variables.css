@@ -1,0 +1,44 @@
+/* Design tokens: colors, spacing and sizes used across the whole app.
+   Changing a value here updates every component that uses it. */
+:root {
+  /* Colors (dark cinematic theme) */
+  --color-bg: #0e0f13;
+  --color-surface: #181a20;
+  --color-surface-raised: #22252d;
+  --color-border: #2e323c;
+  --color-text: #f2f2f4;
+  --color-text-muted: #a0a4af;
+  --color-accent: #f5b301;
+  --color-accent-hover: #ffc933;
+  --color-accent-text: #14110a;
+  --color-danger: #e5484d;
+  --color-danger-hover: #f2666a;
+  --color-success: #3fb67b;
+  --color-focus: #7cc4ff;
+
+  /* Typography */
+  --font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.75rem;
+  --font-size-xxl: 2.5rem;
+
+  /* Spacing */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+
+  /* Shapes */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 999px;
+
+  /* Layout */
+  --content-width: 1200px;
+  --navbar-height: 64px;
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600" width="400" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="#e07a1f"/><stop offset="1" stop-color="#3a2208"/></linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fde7c7" stop-opacity="0.85"/><stop offset="1" stop-color="#fde7c7" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="600" fill="url(#bg)"/>
+  <circle cx="171" cy="267" r="170" fill="url(#glow)" opacity="0.55"/>
+  <circle cx="171" cy="267" r="70" fill="#fde7c7" opacity="0.18"/>
+  <rect x="0" y="380" width="400" height="220" fill="#3a2208" opacity="0.55"/>
+  <text x="40" y="464" font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="42" fill="#fde7c7" letter-spacing="1"><tspan x="40" dy="0">MAD MAX:</tspan><tspan x="40" dy="48">FURY ROAD</tspan></text>
+  <text x="40" y="575" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#fde7c7" opacity="0.75" letter-spacing="4">2015 · CINETRACK</text>
+</svg>

@@ -1,0 +1,11 @@
+.watchlist-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.watchlist-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}

@@ -1,0 +1,103 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgba(14, 15, 19, 0.92);
+  border-bottom: 1px solid var(--color-border);
+  backdrop-filter: blur(8px);
+}
+
+.navbar__inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--navbar-height);
+}
+
+.navbar__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.navbar__logo svg {
+  color: var(--color-accent);
+}
+
+/* Push the menu button to the right edge. */
+.navbar__toggle {
+  margin-left: auto;
+}
+
+/* Mobile first: the links are hidden until the menu button is pressed. */
+.navbar__links {
+  display: none;
+  position: absolute;
+  top: var(--navbar-height);
+  left: 0;
+  right: 0;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: var(--space-md);
+  list-style: none;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.navbar__links--open {
+  display: flex;
+}
+
+.navbar__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--color-text-muted);
+}
+
+.navbar__link:hover {
+  color: var(--color-text);
+  background-color: var(--color-surface-raised);
+}
+
+/* React Router's NavLink adds the "active" class to the current page's link. */
+.navbar__link.active {
+  color: var(--color-accent);
+  background-color: rgba(245, 179, 1, 0.1);
+}
+
+.navbar__count {
+  min-width: 22px;
+  padding: 0 6px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-raised);
+  color: var(--color-text);
+  font-size: var(--font-size-xs);
+  text-align: center;
+}
+
+/* Desktop: always show the links in a row and hide the menu button. */
+@media (min-width: 768px) {
+  .navbar__toggle {
+    display: none;
+  }
+
+  .navbar__links {
+    display: flex;
+    position: static;
+    flex-direction: row;
+    padding: 0;
+    background-color: transparent;
+    border: none;
+  }
+}
