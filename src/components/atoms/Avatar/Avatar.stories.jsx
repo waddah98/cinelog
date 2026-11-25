@@ -4,7 +4,7 @@ import { mockUser } from "../../../data/user";
 export default {
   title: "Atoms/Avatar",
   component: Avatar,
-  argTypes: { size: { control: "select", options: ["small", "medium", "large"] } },
+  tags: ["autodocs"],
 };
 
 export const WithImage = {

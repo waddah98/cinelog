@@ -1,4 +1,3 @@
-import { BookmarkCheck, BookmarkPlus, Info } from "lucide-react";
 import Button from "../../atoms/Button/Button";
 import Badge from "../../atoms/Badge/Badge";
 import GenreTag from "../../molecules/GenreTag/GenreTag";
@@ -11,24 +10,19 @@ import "./HeroBanner.css";
 // - onViewDetails(): called by the "View details" button
 // - onToggleWatchlist(movieId): adds or removes the movie
 function HeroBanner({ movie, isInWatchlist = false, onViewDetails, onToggleWatchlist }) {
-  let watchlistLabel = "Add to watchlist";
-  let watchlistIcon = <BookmarkPlus size={18} aria-hidden="true" />;
+  let watchlistLabel = "+ Add to watchlist";
   if (isInWatchlist) {
-    watchlistLabel = "In your watchlist";
-    watchlistIcon = <BookmarkCheck size={18} aria-hidden="true" />;
+    watchlistLabel = "✓ In your watchlist";
   }
 
   return (
-    <section className="hero-banner" aria-labelledby="hero-title">
-      {/* Decorative background image: empty alt so screen readers skip it. */}
+    <section className="hero-banner">
       <img className="hero-banner__backdrop" src={movie.backdrop} alt="" />
       <div className="hero-banner__overlay" />
 
       <div className="hero-banner__content">
         <Badge variant="rating">Featured</Badge>
-        <h1 id="hero-title" className="hero-banner__title">
-          {movie.title}
-        </h1>
+        <h1 className="hero-banner__title">{movie.title}</h1>
         <MovieMetadata year={movie.year} duration={movie.duration} rating={movie.rating} />
         <div className="hero-banner__genres">
           {movie.genres.map((genre) => (
@@ -39,15 +33,10 @@ function HeroBanner({ movie, isInWatchlist = false, onViewDetails, onToggleWatch
 
         <div className="hero-banner__actions">
           <Button size="large" onClick={onViewDetails}>
-            <Info size={18} aria-hidden="true" /> View details
+            View details
           </Button>
-          <Button
-            size="large"
-            variant="secondary"
-            onClick={() => onToggleWatchlist(movie.id)}
-            ariaPressed={isInWatchlist}
-          >
-            {watchlistIcon} {watchlistLabel}
+          <Button size="large" variant="secondary" onClick={() => onToggleWatchlist(movie.id)}>
+            {watchlistLabel}
           </Button>
         </div>
       </div>

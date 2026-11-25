@@ -1,22 +1,11 @@
-import { fn } from "storybook/test";
 import MovieCard from "./MovieCard";
 import { movies } from "../../../data/movies";
 
 export default {
   title: "Molecules/MovieCard",
   component: MovieCard,
-  args: { movie: movies[0], onToggleWatchlist: fn() },
-  argTypes: {
-    status: { control: "select", options: ["none", "planned", "watched"] },
-  },
-  // Show the card at the width it has in the grid.
-  decorators: [
-    (Story) => (
-      <div style={{ width: 220 }}>
-        <Story />
-      </div>
-    ),
-  ],
+  tags: ["autodocs"],
+  args: { movie: movies[0], onToggleWatchlist: () => {} },
 };
 
 export const Default = {
@@ -37,9 +26,9 @@ export const WithWatchlistActions = {
     movie: movies[1],
     status: "planned",
     onToggleWatchlist: undefined,
-    onMarkWatched: fn(),
-    onMarkPlanned: fn(),
-    onRemove: fn(),
+    onMarkWatched: () => {},
+    onMarkPlanned: () => {},
+    onRemove: () => {},
   },
 };
 

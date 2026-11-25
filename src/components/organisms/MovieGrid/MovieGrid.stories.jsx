@@ -1,4 +1,3 @@
-import { fn } from "storybook/test";
 import MovieGrid from "./MovieGrid";
 import { movies } from "../../../data/movies";
 
@@ -16,7 +15,8 @@ function getStoryStatus(movieId) {
 export default {
   title: "Organisms/MovieGrid",
   component: MovieGrid,
-  args: { onToggleWatchlist: fn() },
+  tags: ["autodocs"],
+  args: { onToggleWatchlist: () => {} },
 };
 
 export const WithMovies = {
@@ -29,7 +29,7 @@ export const Empty = {
     emptyTitle: "No movies match your filters",
     emptyMessage: "Try a different title or genre.",
     emptyActionLabel: "Clear filters",
-    onEmptyAction: fn(),
+    onEmptyAction: () => {},
   },
 };
 
@@ -39,8 +39,8 @@ export const WatchlistActions = {
     movies: movies.slice(0, 2),
     getStatus: getStoryStatus,
     onToggleWatchlist: undefined,
-    onMarkWatched: fn(),
-    onMarkPlanned: fn(),
-    onRemove: fn(),
+    onMarkWatched: () => {},
+    onMarkPlanned: () => {},
+    onRemove: () => {},
   },
 };

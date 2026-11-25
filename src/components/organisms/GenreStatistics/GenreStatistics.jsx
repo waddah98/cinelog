@@ -1,4 +1,3 @@
-import { PieChart } from "lucide-react";
 import EmptyState from "../../molecules/EmptyState/EmptyState";
 import GenreTag from "../../molecules/GenreTag/GenreTag";
 import "./GenreStatistics.css";
@@ -9,7 +8,7 @@ function GenreStatistics({ genreCounts }) {
   if (genreCounts.length === 0) {
     return (
       <EmptyState
-        icon={<PieChart size={40} />}
+        icon="📊"
         title="No genre statistics yet"
         message="Mark a movie as watched and your favorite genres will appear here."
       />
@@ -36,7 +35,7 @@ function GenreStatistics({ genreCounts }) {
                 {item.count} {movieWord}
               </span>
             </div>
-            <div className="genre-statistics__track" aria-hidden="true">
+            <div className="genre-statistics__track">
               <div className="genre-statistics__bar" style={{ width: percent + "%" }} />
             </div>
           </li>

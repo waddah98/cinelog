@@ -3,9 +3,7 @@ import Badge from "./Badge";
 export default {
   title: "Atoms/Badge",
   component: Badge,
-  argTypes: {
-    variant: { control: "select", options: ["default", "genre", "planned", "watched", "rating"] },
-  },
+  tags: ["autodocs"],
 };
 
 export const Default = {

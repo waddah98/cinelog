@@ -1,4 +1,3 @@
-import { Bookmark, CheckCircle, Clock } from "lucide-react";
 import StatCard from "../../molecules/StatCard/StatCard";
 import "./WatchlistSummary.css";
 
@@ -8,24 +7,9 @@ import "./WatchlistSummary.css";
 function WatchlistSummary({ total, planned, watched }) {
   return (
     <div className="watchlist-summary">
-      <StatCard
-        label="In watchlist"
-        value={total}
-        icon={<Bookmark size={18} aria-hidden="true" />}
-        description="Movies you have saved"
-      />
-      <StatCard
-        label="Planned"
-        value={planned}
-        icon={<Clock size={18} aria-hidden="true" />}
-        description="Waiting to be watched"
-      />
-      <StatCard
-        label="Watched"
-        value={watched}
-        icon={<CheckCircle size={18} aria-hidden="true" />}
-        description="Movies you have finished"
-      />
+      <StatCard label="In watchlist" value={total} description="Movies you have saved" />
+      <StatCard label="Planned" value={planned} description="Waiting to be watched" />
+      <StatCard label="Watched" value={watched} description="Movies you have finished" />
     </div>
   );
 }

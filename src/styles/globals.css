@@ -56,19 +56,6 @@ select {
   outline-offset: 2px;
 }
 
-/* Hides text visually but keeps it readable for screen readers. */
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 /* Centered page container used by the layouts. */
 .container {
   width: 100%;

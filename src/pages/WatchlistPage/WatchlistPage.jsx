@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Bookmark } from "lucide-react";
+import { useNavigate } from "react-router";
 import { getMovieById } from "../../data/movies";
 import { useWatchlist } from "../../hooks/useWatchlist";
 import MainLayout from "../../templates/MainLayout/MainLayout";
@@ -60,21 +59,20 @@ function WatchlistPage() {
 
       {watchlist.length === 0 ? (
         <EmptyState
-          icon={<Bookmark size={40} />}
+          icon="🔖"
           title="Your watchlist is empty"
           message="Save movies from Home or Explore and they will appear here."
           actionLabel="Explore movies"
           onAction={() => navigate("/explore")}
         />
       ) : (
-        <section className="watchlist-page__list" aria-label="Saved movies">
-          <div className="watchlist-page__filters" role="group" aria-label="Filter by status">
+        <section className="watchlist-page__list">
+          <div className="watchlist-page__filters">
             {statusFilters.map((filter) => (
               <Button
                 key={filter.value}
                 size="small"
                 variant={statusFilter === filter.value ? "primary" : "secondary"}
-                ariaPressed={statusFilter === filter.value}
                 onClick={() => setStatusFilter(filter.value)}
               >
                 {filter.label}

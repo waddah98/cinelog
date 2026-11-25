@@ -1,4 +1,3 @@
-import { fn } from "storybook/test";
 import CatalogLayout from "./CatalogLayout";
 import FilterPanel from "../../components/organisms/FilterPanel/FilterPanel";
 import MovieGrid from "../../components/organisms/MovieGrid/MovieGrid";
@@ -7,7 +6,7 @@ import { movies, getAllGenres } from "../../data/movies";
 export default {
   title: "Templates/CatalogLayout",
   component: CatalogLayout,
-  parameters: { layout: "fullscreen", route: "/explore" },
+  tags: ["autodocs"],
 };
 
 export const WithFiltersAndResults = {
@@ -18,13 +17,13 @@ export const WithFiltersAndResults = {
     filters: (
       <FilterPanel
         search=""
-        onSearchChange={fn()}
+        onSearchChange={() => {}}
         genres={getAllGenres()}
         selectedGenre="all"
-        onGenreChange={fn()}
+        onGenreChange={() => {}}
         sortBy="rating"
-        onSortChange={fn()}
-        onClear={fn()}
+        onSortChange={() => {}}
+        onClear={() => {}}
         resultCount={8}
       />
     ),

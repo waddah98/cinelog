@@ -1,5 +1,4 @@
-import { Link } from "react-router-dom";
-import { BookmarkCheck, BookmarkPlus, Check, Eye, RotateCcw, Trash2 } from "lucide-react";
+import { Link } from "react-router";
 import Poster from "../../atoms/Poster/Poster";
 import Badge from "../../atoms/Badge/Badge";
 import Button from "../../atoms/Button/Button";
@@ -29,11 +28,11 @@ function MovieCard({
   // Only show the first two genres so cards stay the same height.
   const shownGenres = movie.genres.slice(0, 2);
 
-  let bookmarkLabel = "Add " + movie.title + " to watchlist";
-  let bookmarkIcon = <BookmarkPlus size={18} />;
+  let bookmarkLabel = "Add to watchlist";
+  let bookmarkIcon = "+";
   if (isSaved) {
-    bookmarkLabel = "Remove " + movie.title + " from watchlist";
-    bookmarkIcon = <BookmarkCheck size={18} />;
+    bookmarkLabel = "Remove from watchlist";
+    bookmarkIcon = "✓";
   }
 
   const hasActions = onMarkWatched || onMarkPlanned || onRemove;
@@ -41,23 +40,18 @@ function MovieCard({
   return (
     <article className="movie-card">
       <div className="movie-card__poster">
-        <Link to={detailsLink} tabIndex={-1} aria-hidden="true">
-          <Poster src={movie.poster} alt="" title={movie.title} />
+        <Link to={detailsLink}>
+          <Poster src={movie.poster} alt={"Poster of " + movie.title} title={movie.title} />
         </Link>
 
-        {/* Status badge uses text + icon, not only color. */}
         {status === "planned" && (
           <div className="movie-card__status">
-            <Badge variant="planned">
-              <Eye size={12} aria-hidden="true" /> Planned
-            </Badge>
+            <Badge variant="planned">Planned</Badge>
           </div>
         )}
         {status === "watched" && (
           <div className="movie-card__status">
-            <Badge variant="watched">
-              <Check size={12} aria-hidden="true" /> Watched
-            </Badge>
+            <Badge variant="watched">Watched</Badge>
           </div>
         )}
 
@@ -89,17 +83,17 @@ function MovieCard({
         <div className="movie-card__actions">
           {status === "planned" && onMarkWatched && (
             <Button size="small" onClick={() => onMarkWatched(movie.id)}>
-              <Check size={16} aria-hidden="true" /> Mark watched
+              Mark watched
             </Button>
           )}
           {status === "watched" && onMarkPlanned && (
             <Button size="small" variant="secondary" onClick={() => onMarkPlanned(movie.id)}>
-              <RotateCcw size={16} aria-hidden="true" /> Move to planned
+              Move to planned
             </Button>
           )}
           {onRemove && (
             <Button size="small" variant="danger" onClick={() => onRemove(movie.id)}>
-              <Trash2 size={16} aria-hidden="true" /> Remove
+              Remove
             </Button>
           )}
         </div>

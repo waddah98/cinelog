@@ -4,6 +4,7 @@ import { mockUser } from "../../../data/user";
 export default {
   title: "Organisms/ProfileSummary",
   component: ProfileSummary,
+  tags: ["autodocs"],
   args: { user: mockUser },
 };
 

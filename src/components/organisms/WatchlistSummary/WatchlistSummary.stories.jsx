@@ -3,6 +3,7 @@ import WatchlistSummary from "./WatchlistSummary";
 export default {
   title: "Organisms/WatchlistSummary",
   component: WatchlistSummary,
+  tags: ["autodocs"],
 };
 
 export const WithMovies = {

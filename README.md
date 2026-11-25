@@ -7,6 +7,9 @@ watched, and see simple watching statistics on your profile.
 Everything runs in the browser: there is **no backend, no login and no external API**. Movie data comes
 from a local file and your watchlist is saved in the browser's `localStorage`.
 
+> **Documentation:** the [`docs/`](docs/README.md) folder explains how every screen was built, which React
+> concepts from the course it uses, and the questions to expect during the presentation.
+
 ## Main features
 
 - **Home** (`/`): featured movie banner, Trending, Top rated and Recently added sections.
@@ -27,7 +30,6 @@ from a local file and your watchlist is saved in the browser's `localStorage`.
 | React Router | Pages and the `:movieId` URL parameter |
 | CSS (with variables, flexbox, grid, media queries) | Styling and responsive layout |
 | Storybook | Developing and documenting components in isolation |
-| Lucide React | Icons |
 | Browser `localStorage` | Saving the watchlist |
 
 ## Getting started
@@ -80,7 +82,7 @@ cinetrack/
 │   │   └── organisms/
 │   ├── templates/         MainLayout, CatalogLayout
 │   ├── pages/             The five pages + NotFoundPage
-│   ├── hooks/             useLocalStorage, useWatchlist, useMovieFilters
+│   ├── hooks/             useWatchlist
 │   ├── data/              movies.js (catalog), user.js (mock user)
 │   ├── routes/            AppRouter.jsx (all routes)
 │   ├── styles/            variables.css (design tokens), globals.css
@@ -91,9 +93,9 @@ cinetrack/
 
 ## Custom hooks
 
-- **`useLocalStorage(key, initialValue)`** works like `useState`, but it also saves the value in `localStorage` as JSON. If nothing is saved, or the saved text is broken, it falls back to `initialValue`. It knows nothing about movies.
-- **`useWatchlist()`** uses `useLocalStorage` and provides `addToWatchlist`, `removeFromWatchlist`, `markAsWatched`, `markAsPlanned`, `toggleWatchlist`, `isInWatchlist`, `getEntry` and `getStatus`. It prevents duplicates and ignores invalid saved entries.
-- **`useMovieFilters(movies)`** holds the search text, the selected genre and the sort option, and returns `filteredMovies` with all three applied together. It also provides `clearFilters()`.
+- **`useWatchlist()`** keeps the watchlist in a `useState` and saves it in `localStorage` with a `useEffect` every time it changes. It provides `addToWatchlist`, `removeFromWatchlist`, `markAsWatched`, `markAsPlanned`, `toggleWatchlist`, `isInWatchlist` and `getStatus`, and prevents duplicates.
+
+The search, genre and sort state of the Explore page lives directly in `ExplorePage` (the page owns the state and passes it to `FilterPanel` through props).
 
 ## Mock data and persistence
 

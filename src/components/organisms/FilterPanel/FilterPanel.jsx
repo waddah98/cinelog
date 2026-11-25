@@ -1,11 +1,10 @@
-import { RotateCcw } from "lucide-react";
 import SearchBar from "../../molecules/SearchBar/SearchBar";
 import Select from "../../atoms/Select/Select";
 import Button from "../../atoms/Button/Button";
 import "./FilterPanel.css";
 
 // The sort options offered on the Explore page.
-// The values must match the ones handled in useMovieFilters.
+// The values must match the ones handled in ExplorePage (sortMovies).
 const sortOptions = [
   { value: "rating", label: "Rating (highest first)" },
   { value: "year", label: "Release year (newest first)" },
@@ -14,7 +13,7 @@ const sortOptions = [
 
 // Organism: search + genre filter + sort + "clear filters".
 // It only displays the controls. The values and the filtering logic
-// live in the useMovieFilters hook, which the Explore page passes in through props.
+// live in the Explore page, which passes them in through props.
 function FilterPanel({
   search,
   onSearchChange,
@@ -55,13 +54,12 @@ function FilterPanel({
         />
         <div className="filter-panel__clear">
           <Button variant="secondary" onClick={onClear}>
-            <RotateCcw size={16} aria-hidden="true" /> Clear filters
+            Clear filters
           </Button>
         </div>
       </div>
 
-      {/* aria-live: screen readers announce the new count when it changes. */}
-      <p className="filter-panel__count" aria-live="polite">
+      <p className="filter-panel__count">
         {resultCount === 1 ? "1 movie found" : resultCount + " movies found"}
       </p>
     </div>

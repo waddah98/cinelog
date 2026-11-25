@@ -17,6 +17,10 @@
   text-align: center;
 }
 
+.poster__fallback-icon {
+  font-size: 32px;
+}
+
 .poster__fallback-title {
   font-size: var(--font-size-sm);
   font-weight: 600;

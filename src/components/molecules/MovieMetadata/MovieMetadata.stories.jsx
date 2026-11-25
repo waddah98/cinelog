@@ -3,6 +3,7 @@ import MovieMetadata from "./MovieMetadata";
 export default {
   title: "Molecules/MovieMetadata",
   component: MovieMetadata,
+  tags: ["autodocs"],
 };
 
 export const Full = {

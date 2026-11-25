@@ -14,7 +14,7 @@ function CatalogLayout({ watchlistCount, title, description, filters, children }
           {description && <p>{description}</p>}
         </header>
         <div className="catalog-layout__filters">{filters}</div>
-        <section className="catalog-layout__results" aria-label="Results">
+        <section className="catalog-layout__results">
           {children}
         </section>
       </div>

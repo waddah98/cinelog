@@ -3,7 +3,7 @@ import Rating from "./Rating";
 export default {
   title: "Atoms/Rating",
   component: Rating,
-  argTypes: { value: { control: { type: "range", min: 0, max: 10, step: 0.1 } } },
+  tags: ["autodocs"],
 };
 
 export const HighRating = {
@@ -12,12 +12,4 @@ export const HighRating = {
 
 export const AverageRating = {
   args: { value: 6.4 },
-};
-
-export const StarOnly = {
-  args: { value: 8.1, showValue: false },
-};
-
-export const OutOfFive = {
-  args: { value: 4.5, max: 5 },
 };

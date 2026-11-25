@@ -1,4 +1,3 @@
-import { CalendarDays, Heart } from "lucide-react";
 import Badge from "../../atoms/Badge/Badge";
 import UserSummary from "../../molecules/UserSummary/UserSummary";
 import "./ProfileSummary.css";
@@ -14,17 +13,11 @@ function ProfileSummary({ user, favoriteGenre = "" }) {
   }
 
   return (
-    <section className="profile-summary" aria-label="User profile">
+    <section className="profile-summary">
       <UserSummary name={user.name} bio={user.bio} avatar={user.avatar} />
       <div className="profile-summary__details">
-        {user.memberSince && (
-          <Badge>
-            <CalendarDays size={12} aria-hidden="true" /> Member since {user.memberSince}
-          </Badge>
-        )}
-        <Badge variant="rating">
-          <Heart size={12} aria-hidden="true" /> {favoriteText}
-        </Badge>
+        {user.memberSince && <Badge>Member since {user.memberSince}</Badge>}
+        <Badge variant="rating">{favoriteText}</Badge>
       </div>
     </section>
   );

@@ -1,12 +1,10 @@
 import "./IconButton.css";
 
-// Atom: a button that only shows an icon.
-// Because there is no visible text, the "label" prop is required:
-// it becomes the aria-label (read by screen readers) and the tooltip (title).
-// - icon: a Lucide icon element, for example <X size={18} />
+// Atom: a small round button that only shows a symbol, for example "✕" or "☰".
+// - icon: the symbol to show
+// - label: the text shown in the tooltip when the mouse is over the button
 // - active: shows the "selected" style (used for the watchlist bookmark)
-// - ariaExpanded: optional, tells screen readers if a menu opened by this button is open
-function IconButton({ icon, label, onClick, disabled = false, active = false, ariaExpanded }) {
+function IconButton({ icon, label, onClick, disabled = false, active = false }) {
   let className = "icon-button";
   if (active) {
     className = className + " icon-button--active";
@@ -18,9 +16,7 @@ function IconButton({ icon, label, onClick, disabled = false, active = false, ar
       className={className}
       onClick={onClick}
       disabled={disabled}
-      aria-label={label}
       title={label}
-      aria-expanded={ariaExpanded}
     >
       {icon}
     </button>

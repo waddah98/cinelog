@@ -38,7 +38,7 @@ function Avatar({ src, name = "", size = "medium" }) {
   }
 
   return (
-    <span className={className + " avatar--fallback"} role="img" aria-label={name}>
+    <span className={className + " avatar--fallback"}>
       {getInitials(name)}
     </span>
   );

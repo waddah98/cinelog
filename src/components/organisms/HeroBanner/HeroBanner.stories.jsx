@@ -1,4 +1,3 @@
-import { fn } from "storybook/test";
 import HeroBanner from "./HeroBanner";
 import { movies } from "../../../data/movies";
 
@@ -8,7 +7,8 @@ const featuredMovie = movies.find((movie) => movie.isFeatured);
 export default {
   title: "Organisms/HeroBanner",
   component: HeroBanner,
-  args: { movie: featuredMovie, onViewDetails: fn(), onToggleWatchlist: fn() },
+  tags: ["autodocs"],
+  args: { movie: featuredMovie, onViewDetails: () => {}, onToggleWatchlist: () => {} },
 };
 
 export const FeaturedMovie = {

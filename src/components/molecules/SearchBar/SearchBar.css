@@ -3,18 +3,8 @@
   width: 100%;
 }
 
-.search-bar__icon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--color-text-muted);
-  pointer-events: none;
-}
-
-/* Make room for the icon on the left and the clear button on the right. */
+/* Make room for the clear button on the right. */
 .search-bar .input__field {
-  padding-left: 42px;
   padding-right: 48px;
 }
 

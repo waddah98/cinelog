@@ -25,8 +25,8 @@
   color: var(--color-text);
 }
 
-.navbar__logo svg {
-  color: var(--color-accent);
+.navbar__logo-icon {
+  font-size: 22px;
 }
 
 /* Push the menu button to the right edge. */

@@ -1,11 +1,11 @@
-import { fn } from "storybook/test";
 import MovieSection from "./MovieSection";
 import { movies } from "../../../data/movies";
 
 export default {
   title: "Organisms/MovieSection",
   component: MovieSection,
-  args: { id: "story-section", onToggleWatchlist: fn(), getStatus: () => "none" },
+  tags: ["autodocs"],
+  args: { onToggleWatchlist: () => {}, getStatus: () => "none" },
 };
 
 export const Trending = {

@@ -4,6 +4,7 @@ import { mockUser } from "../../../data/user";
 export default {
   title: "Molecules/UserSummary",
   component: UserSummary,
+  tags: ["autodocs"],
 };
 
 export const Default = {

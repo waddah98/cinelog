@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Navbar from "../../components/organisms/Navbar/Navbar";
 import "./MainLayout.css";
 
@@ -5,6 +6,12 @@ import "./MainLayout.css";
 // It does not know anything about movies; the page puts its content inside as `children`.
 // - watchlistCount: passed to the Navbar badge
 function MainLayout({ watchlistCount = 0, children }) {
+  // When a new page is shown (mount), scroll back to the top.
+  // Without this, opening a movie from the bottom of Home would keep the old scroll position.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="main-layout">
       <Navbar watchlistCount={watchlistCount} />

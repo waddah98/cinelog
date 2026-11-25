@@ -6,14 +6,7 @@ const movie = movies[0];
 export default {
   title: "Atoms/Poster",
   component: Poster,
-  // Keep the poster at a realistic card width in Storybook.
-  decorators: [
-    (Story) => (
-      <div style={{ width: 220 }}>
-        <Story />
-      </div>
-    ),
-  ],
+  tags: ["autodocs"],
 };
 
 export const WithImage = {

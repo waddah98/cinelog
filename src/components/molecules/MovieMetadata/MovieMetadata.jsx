@@ -1,4 +1,3 @@
-import { Calendar, Clock } from "lucide-react";
 import Rating from "../../atoms/Rating/Rating";
 import "./MovieMetadata.css";
 
@@ -19,18 +18,8 @@ function formatDuration(minutes) {
 function MovieMetadata({ year, duration, rating }) {
   return (
     <div className="movie-metadata">
-      {year && (
-        <span className="movie-metadata__item">
-          <Calendar size={14} aria-hidden="true" />
-          {year}
-        </span>
-      )}
-      {duration && (
-        <span className="movie-metadata__item">
-          <Clock size={14} aria-hidden="true" />
-          {formatDuration(duration)}
-        </span>
-      )}
+      {year && <span className="movie-metadata__item">{year}</span>}
+      {duration && <span className="movie-metadata__item">{formatDuration(duration)}</span>}
       {rating !== undefined && <Rating value={rating} />}
     </div>
   );

@@ -17,11 +17,6 @@
   font-weight: 600;
 }
 
-.stat-card__icon {
-  display: inline-flex;
-  color: var(--color-accent);
-}
-
 .stat-card__value {
   font-size: var(--font-size-xl);
   font-weight: 800;

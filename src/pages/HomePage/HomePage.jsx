@@ -1,5 +1,4 @@
-import { useNavigate } from "react-router-dom";
-import { Compass } from "lucide-react";
+import { useNavigate } from "react-router";
 import { movies } from "../../data/movies";
 import { useWatchlist } from "../../hooks/useWatchlist";
 import MainLayout from "../../templates/MainLayout/MainLayout";
@@ -45,7 +44,6 @@ function HomePage() {
       />
 
       <MovieSection
-        id="trending"
         title="Trending now"
         description="What everyone is talking about this week."
         actionLabel="See all"
@@ -56,7 +54,6 @@ function HomePage() {
       />
 
       <MovieSection
-        id="top-rated"
         title="Top rated"
         description="The highest rated movies in the catalog."
         actionLabel="See all"
@@ -67,7 +64,6 @@ function HomePage() {
       />
 
       <MovieSection
-        id="recently-added"
         title="Recently added"
         description="Fresh additions to CineTrack."
         actionLabel="See all"
@@ -77,11 +73,11 @@ function HomePage() {
         onToggleWatchlist={toggleWatchlist}
       />
 
-      <section className="home-page__explore" aria-labelledby="explore-cta-heading">
-        <h2 id="explore-cta-heading">Looking for something else?</h2>
+      <section className="home-page__explore">
+        <h2>Looking for something else?</h2>
         <p>Search the full catalog, filter by genre and sort by rating, year or title.</p>
         <Button size="large" onClick={() => navigate("/explore")}>
-          <Compass size={18} aria-hidden="true" /> Explore all movies
+          Explore all movies
         </Button>
       </section>
     </MainLayout>

@@ -25,8 +25,9 @@ function countGenres(watchedMovies) {
   });
 
   // Step 2: turn the object into an array so we can sort it and use .map in JSX.
-  const result = Object.keys(counts).map((genre) => {
-    return { genre: genre, count: counts[genre] };
+  // Object.entries gives [["Sci-Fi", 3], ["Drama", 2], ...]
+  const result = Object.entries(counts).map(([genre, count]) => {
+    return { genre: genre, count: count };
   });
 
   // Step 3: highest count first. If two genres have the same count, sort A–Z.
@@ -65,8 +66,8 @@ function ProfilePage() {
     <MainLayout watchlistCount={watchlist.length}>
       <ProfileSummary user={mockUser} favoriteGenre={favoriteGenre} />
 
-      <section className="profile-page__section" aria-labelledby="activity-heading">
-        <h2 id="activity-heading">Your activity</h2>
+      <section className="profile-page__section">
+        <h2>Your activity</h2>
         <WatchlistSummary
           total={watchlist.length}
           planned={plannedCount}
@@ -74,13 +75,12 @@ function ProfilePage() {
         />
       </section>
 
-      <section className="profile-page__section" aria-labelledby="genres-heading">
-        <h2 id="genres-heading">Favorite genres</h2>
+      <section className="profile-page__section">
+        <h2>Favorite genres</h2>
         <GenreStatistics genreCounts={genreCounts} />
       </section>
 
       <MovieSection
-        id="recently-watched"
         title="Recently watched"
         description="The last movies you marked as watched."
         movies={watchedMovies.slice(0, 5)}

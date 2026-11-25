@@ -1,5 +1,5 @@
+import { useState } from "react";
 import { movies, getAllGenres } from "../../data/movies";
-import { useMovieFilters } from "../../hooks/useMovieFilters";
 import { useWatchlist } from "../../hooks/useWatchlist";
 import CatalogLayout from "../../templates/CatalogLayout/CatalogLayout";
 import FilterPanel from "../../components/organisms/FilterPanel/FilterPanel";
@@ -8,10 +8,50 @@ import MovieGrid from "../../components/organisms/MovieGrid/MovieGrid";
 // The genre list never changes, so we calculate it once when the file loads.
 const genres = getAllGenres();
 
+// Returns a NEW sorted array. We copy the array first with [...list]
+// because .sort() changes the array it is called on.
+function sortMovies(list, sortBy) {
+  const sorted = [...list];
+
+  if (sortBy === "rating") {
+    // Highest rating first.
+    sorted.sort((a, b) => b.rating - a.rating);
+  } else if (sortBy === "year") {
+    // Newest release first.
+    sorted.sort((a, b) => b.year - a.year);
+  } else if (sortBy === "title") {
+    // Alphabetical A–Z.
+    sorted.sort((a, b) => a.title.localeCompare(b.title));
+  }
+
+  return sorted;
+}
+
 // Page: browse, search, filter and sort the whole catalog.
+// The page owns the filter state and passes it down to FilterPanel.
 function ExplorePage() {
-  const filters = useMovieFilters(movies);
+  const [search, setSearch] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState("all");
+  const [sortBy, setSortBy] = useState("rating");
   const { watchlist, toggleWatchlist, getStatus } = useWatchlist();
+
+  // 1. Search: keep movies whose title contains the text (upper/lower case ignored).
+  const searchText = search.trim().toLowerCase();
+  let filteredMovies = movies.filter((movie) => movie.title.toLowerCase().includes(searchText));
+
+  // 2. Genre: keep only movies that have the selected genre.
+  if (selectedGenre !== "all") {
+    filteredMovies = filteredMovies.filter((movie) => movie.genres.includes(selectedGenre));
+  }
+
+  // 3. Sort what is left.
+  filteredMovies = sortMovies(filteredMovies, sortBy);
+
+  function clearFilters() {
+    setSearch("");
+    setSelectedGenre("all");
+    setSortBy("rating");
+  }
 
   return (
     <CatalogLayout
@@ -20,26 +60,26 @@ function ExplorePage() {
       description="Search the full CineTrack catalog, filter by genre and sort the results."
       filters={
         <FilterPanel
-          search={filters.search}
-          onSearchChange={filters.setSearch}
+          search={search}
+          onSearchChange={setSearch}
           genres={genres}
-          selectedGenre={filters.selectedGenre}
-          onGenreChange={filters.setSelectedGenre}
-          sortBy={filters.sortBy}
-          onSortChange={filters.setSortBy}
-          onClear={filters.clearFilters}
-          resultCount={filters.filteredMovies.length}
+          selectedGenre={selectedGenre}
+          onGenreChange={setSelectedGenre}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+          onClear={clearFilters}
+          resultCount={filteredMovies.length}
         />
       }
     >
       <MovieGrid
-        movies={filters.filteredMovies}
+        movies={filteredMovies}
         getStatus={getStatus}
         onToggleWatchlist={toggleWatchlist}
         emptyTitle="No movies match your filters"
         emptyMessage="Try a different title or genre, or clear the filters to see every movie."
         emptyActionLabel="Clear filters"
-        onEmptyAction={filters.clearFilters}
+        onEmptyAction={clearFilters}
       />
     </CatalogLayout>
   );

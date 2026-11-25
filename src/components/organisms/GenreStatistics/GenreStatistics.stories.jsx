@@ -3,6 +3,7 @@ import GenreStatistics from "./GenreStatistics";
 export default {
   title: "Organisms/GenreStatistics",
   component: GenreStatistics,
+  tags: ["autodocs"],
 };
 
 export const WithData = {

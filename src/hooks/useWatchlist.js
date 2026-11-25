@@ -1,50 +1,44 @@
-import { useLocalStorage } from "./useLocalStorage";
-import { getMovieById } from "../data/movies";
+import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "cinetrack-watchlist";
 
-// Checks that a saved entry looks correct and points to a movie that exists.
-// Broken entries (for example edited by hand in the browser) are ignored.
-function isValidEntry(entry) {
-  if (!entry || typeof entry.movieId !== "string" || typeof entry.addedAt !== "string") {
-    return false;
+// Reads the saved watchlist from localStorage.
+// If nothing is saved yet (or the saved text is broken), we start with an empty list.
+function loadWatchlist() {
+  const savedText = localStorage.getItem(STORAGE_KEY);
+  if (savedText === null) {
+    return [];
   }
-  if (entry.status !== "planned" && entry.status !== "watched") {
-    return false;
+
+  try {
+    return JSON.parse(savedText);
+  } catch (error) {
+    console.log("Could not read the saved watchlist:", error);
+    return [];
   }
-  if (entry.status === "watched" && typeof entry.watchedAt !== "string") {
-    return false;
-  }
-  if (getMovieById(entry.movieId) === undefined) {
-    return false;
-  }
-  return true;
 }
 
-// Custom hook: all watchlist actions in one place.
+// Custom hook: the watchlist and all its actions in one place.
 // Each entry only stores the movie id and the user's tracking information:
 // { movieId, status: "planned" | "watched", addedAt, watchedAt }
 // The movie details (title, poster...) always come from the catalog.
 export function useWatchlist() {
-  const [savedList, setSavedList] = useLocalStorage(STORAGE_KEY, []);
+  const [watchlist, setWatchlist] = useState(loadWatchlist());
 
-  // Be safe: if the saved data is not an array, start with an empty list.
-  let watchlist = [];
-  if (Array.isArray(savedList)) {
-    watchlist = savedList.filter(isValidEntry);
-  }
-
-  function getEntry(movieId) {
-    return watchlist.find((entry) => entry.movieId === movieId);
-  }
+  // Every time the watchlist changes, save it in localStorage
+  // so it is still there after a page refresh.
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(watchlist));
+  }, [watchlist]);
 
   function isInWatchlist(movieId) {
-    return getEntry(movieId) !== undefined;
+    const entry = watchlist.find((item) => item.movieId === movieId);
+    return entry !== undefined;
   }
 
   // Returns "none", "planned" or "watched".
   function getStatus(movieId) {
-    const entry = getEntry(movieId);
+    const entry = watchlist.find((item) => item.movieId === movieId);
     if (entry === undefined) {
       return "none";
     }
@@ -52,7 +46,7 @@ export function useWatchlist() {
   }
 
   function addToWatchlist(movieId) {
-    // Prevent duplicates: do nothing if the movie is already saved.
+    // Do nothing if the movie is already saved (no duplicates).
     if (isInWatchlist(movieId)) {
       return;
     }
@@ -63,13 +57,13 @@ export function useWatchlist() {
       addedAt: new Date().toISOString(),
       watchedAt: null,
     };
-    // Create a NEW array (never change state directly) so React sees the update.
-    setSavedList([...watchlist, newEntry]);
+    // Create a NEW array (never change the state directly).
+    setWatchlist([...watchlist, newEntry]);
   }
 
   function removeFromWatchlist(movieId) {
-    const newList = watchlist.filter((entry) => entry.movieId !== movieId);
-    setSavedList(newList);
+    const newList = watchlist.filter((item) => item.movieId !== movieId);
+    setWatchlist(newList);
   }
 
   function markAsWatched(movieId) {
@@ -83,27 +77,27 @@ export function useWatchlist() {
         addedAt: now,
         watchedAt: now,
       };
-      setSavedList([...watchlist, newEntry]);
+      setWatchlist([...watchlist, newEntry]);
       return;
     }
 
-    const newList = watchlist.map((entry) => {
-      if (entry.movieId === movieId) {
-        return { ...entry, status: "watched", watchedAt: now };
+    const newList = watchlist.map((item) => {
+      if (item.movieId === movieId) {
+        return { ...item, status: "watched", watchedAt: now };
       }
-      return entry;
+      return item;
     });
-    setSavedList(newList);
+    setWatchlist(newList);
   }
 
   function markAsPlanned(movieId) {
-    const newList = watchlist.map((entry) => {
-      if (entry.movieId === movieId) {
-        return { ...entry, status: "planned", watchedAt: null };
+    const newList = watchlist.map((item) => {
+      if (item.movieId === movieId) {
+        return { ...item, status: "planned", watchedAt: null };
       }
-      return entry;
+      return item;
     });
-    setSavedList(newList);
+    setWatchlist(newList);
   }
 
   // Used by the bookmark buttons: add if missing, remove if already saved.
@@ -117,13 +111,12 @@ export function useWatchlist() {
 
   return {
     watchlist,
+    isInWatchlist,
+    getStatus,
     addToWatchlist,
     removeFromWatchlist,
     markAsWatched,
     markAsPlanned,
     toggleWatchlist,
-    isInWatchlist,
-    getEntry,
-    getStatus,
   };
 }

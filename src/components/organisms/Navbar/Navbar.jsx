@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { Clapperboard, Menu, X } from "lucide-react";
+import { Link, NavLink } from "react-router";
 import IconButton from "../../atoms/IconButton/IconButton";
 import "./Navbar.css";
 
@@ -10,7 +9,7 @@ import "./Navbar.css";
 // NavLink (from React Router) automatically adds the class "active"
 // to the link of the page we are on. Navbar.css uses it to highlight the link.
 function Navbar({ watchlistCount = 0 }) {
-  // Local UI state: is the mobile menu open?
+  // Local state: is the mobile menu open?
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   function toggleMenu() {
@@ -26,10 +25,10 @@ function Navbar({ watchlistCount = 0 }) {
     linksClass = linksClass + " navbar__links--open";
   }
 
-  let menuIcon = <Menu size={20} />;
+  let menuIcon = "☰";
   let menuLabel = "Open menu";
   if (isMenuOpen) {
-    menuIcon = <X size={20} />;
+    menuIcon = "✕";
     menuLabel = "Close menu";
   }
 
@@ -37,20 +36,15 @@ function Navbar({ watchlistCount = 0 }) {
     <header className="navbar">
       <div className="container navbar__inner">
         <Link to="/" className="navbar__logo" onClick={closeMenu}>
-          <Clapperboard size={24} aria-hidden="true" />
+          <span className="navbar__logo-icon">🎬</span>
           <span>CineTrack</span>
         </Link>
 
         <div className="navbar__toggle">
-          <IconButton
-            icon={menuIcon}
-            label={menuLabel}
-            onClick={toggleMenu}
-            ariaExpanded={isMenuOpen}
-          />
+          <IconButton icon={menuIcon} label={menuLabel} onClick={toggleMenu} />
         </div>
 
-        <nav aria-label="Main navigation">
+        <nav>
           <ul className={linksClass}>
             <li>
               {/* "end" means: only active on exactly "/", not on every page. */}

@@ -1,16 +1,16 @@
-import { fn } from "storybook/test";
 import FilterPanel from "./FilterPanel";
 import { getAllGenres } from "../../../data/movies";
 
 export default {
   title: "Organisms/FilterPanel",
   component: FilterPanel,
+  tags: ["autodocs"],
   args: {
     genres: getAllGenres(),
-    onSearchChange: fn(),
-    onGenreChange: fn(),
-    onSortChange: fn(),
-    onClear: fn(),
+    onSearchChange: () => {},
+    onGenreChange: () => {},
+    onSortChange: () => {},
+    onClear: () => {},
   },
 };
 

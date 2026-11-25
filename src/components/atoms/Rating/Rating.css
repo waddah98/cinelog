@@ -7,7 +7,6 @@
 
 .rating__star {
   color: var(--color-accent);
-  fill: var(--color-accent);
 }
 
 .rating__value {
