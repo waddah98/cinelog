@@ -42,8 +42,8 @@ MovieDetailsPage → MainLayout → EmptyState (molecule) → Button (atom)
 ```js
 const { movieId } = useParams();
 const navigate = useNavigate();
-const { watchlist, getStatus, addToWatchlist, removeFromWatchlist, markAsWatched, markAsPlanned } =
-  useWatchlist();
+const watchlist = useSelector((state) => state.watchlist.items);
+const dispatch = useDispatch();
 
 const movie = getMovieById(movieId);
 ```
@@ -52,8 +52,9 @@ const movie = getMovieById(movieId);
 |---|---|
 | `movieId` | The URL, read with `useParams()`. `/movies/inception` → `"inception"` |
 | `movie` | `getMovieById(movieId)` in `data/movies.js` (uses `find`, returns `undefined` if not found) |
-| `status` | `getStatus(movie.id)` from the hook: `"none"`, `"planned"` or `"watched"` |
-| Actions | The 4 watchlist functions of the hook |
+| `watchlist` | The Redux store, read with `useSelector` |
+| `status` | `getStatus(watchlist, movie.id)` from the slice file: `"none"`, `"planned"` or `"watched"` |
+| Actions | 4 Redux actions sent with `dispatch`: `ADD_TO_WATCHLIST`, `MARK_AS_WATCHED`, `MARK_AS_PLANNED`, `REMOVE_FROM_WATCHLIST` |
 
 The page has no `useState` of its own: everything is derived from the URL and the watchlist.
 
@@ -74,7 +75,7 @@ The `:` means "this part of the URL changes". One page component works for all 2
 ```jsx
 if (movie === undefined) {
   return (
-    <MainLayout watchlistCount={watchlist.length}>
+    <MainLayout>
       <EmptyState
         icon="🎬"
         title="Movie not found"
@@ -107,20 +108,40 @@ JSX is a JavaScript value, so it can be stored in a variable and displayed later
 
 ### 4. Buttons that depend on the status
 
+Each button calls a small handler that **dispatches** a Redux action:
+
+```js
+function handleAdd() {
+  dispatch(ADD_TO_WATCHLIST({ movieId: movie.id, date: new Date().toISOString() }));
+}
+
+function handleMarkWatched() {
+  dispatch(MARK_AS_WATCHED({ movieId: movie.id, date: new Date().toISOString() }));
+}
+
+function handleMarkPlanned() {
+  dispatch(MARK_AS_PLANNED(movie.id));
+}
+
+function handleRemove() {
+  dispatch(REMOVE_FROM_WATCHLIST(movie.id));
+}
+```
+
 ```jsx
 {status === "none" && (
-  <Button onClick={() => addToWatchlist(movie.id)}>Add to watchlist</Button>
+  <Button onClick={handleAdd}>Add to watchlist</Button>
 )}
 {status !== "watched" && (
-  <Button variant={status === "none" ? "secondary" : "primary"} onClick={() => markAsWatched(movie.id)}>
+  <Button variant={status === "none" ? "secondary" : "primary"} onClick={handleMarkWatched}>
     Mark as watched
   </Button>
 )}
 {status === "watched" && (
-  <Button variant="secondary" onClick={() => markAsPlanned(movie.id)}>Move back to planned</Button>
+  <Button variant="secondary" onClick={handleMarkPlanned}>Move back to planned</Button>
 )}
 {status !== "none" && (
-  <Button variant="danger" onClick={() => removeFromWatchlist(movie.id)}>Remove from watchlist</Button>
+  <Button variant="danger" onClick={handleRemove}>Remove from watchlist</Button>
 )}
 ```
 
@@ -130,16 +151,18 @@ JSX is a JavaScript value, so it can be stored in a variable and displayed later
 | `planned` | Mark as watched · Remove from watchlist |
 | `watched` | Move back to planned · Remove from watchlist |
 
-"Mark as watched" also works when the movie is not saved yet: `markAsWatched` adds it directly as
-`"watched"`.
+"Mark as watched" also works when the movie is not saved yet: the `MARK_AS_WATCHED` reducer adds it
+directly as `"watched"`.
 
 ### 5. The user clicks "Mark as watched"
 
-1. `markAsWatched("inception")` runs in the hook.
-2. It builds a new array with `map`; the matching entry is copied with the spread operator and changed:
-   `{ ...item, status: "watched", watchedAt: now }`.
-3. `setWatchlist(newList)` → React re-renders → `status` is now `"watched"` → the badge and the buttons change.
-4. The `useEffect` of the hook saves the list in `localStorage`.
+1. `handleMarkWatched` runs `dispatch(MARK_AS_WATCHED({ movieId: "inception", date: "..." }))`.
+2. In the slice, the `MARK_AS_WATCHED` reducer finds the entry and changes it:
+   `entry.status = "watched"; entry.watchedAt = action.payload.date;`
+   (Redux Toolkit turns this into a new state, the old one is not modified).
+3. `useSelector` gives the page the new list → React re-renders → `status` is now `"watched"` → the badge
+   and the buttons change.
+4. Redux Persist saves the store in `localStorage`.
 
 ### 6. Images that fail to load
 
@@ -173,8 +196,8 @@ shows a 🎬 box with the movie title instead.
 | Conditional rendering (`if`, `&&`, ternary) | not found, badge, buttons | Ch. 3 |
 | `useState` in an atom | `Poster` error fallback | Ch. 4 |
 | Event props (`onClick`, `onError`) | buttons, images | Ch. 3–4 |
-| Custom hook | `useWatchlist()` | Ch. 6 |
-| Immutable update (`map` + spread) | `markAsWatched` | Ch. 1, 7 |
+| Redux: `useSelector`, `useDispatch`, 4 actions | watchlist status and buttons | Ch. 7 |
+| Reducer of a slice | `MARK_AS_WATCHED` in `watchlistSlice.js` | Ch. 7 |
 | Lists with `map` + `key` | genres, cast | Ch. 3–5 |
 
 ## 6. Questions you might be asked
@@ -192,5 +215,9 @@ Rules of hooks: they must be called at the top level, always in the same order. 
 would skip it on some renders.
 
 **Why doesn't the page store `status` in a state?**
-It can be calculated from the watchlist with `getStatus`. When the watchlist changes, the status is
-automatically correct at the next render.
+It can be calculated from the watchlist with `getStatus`. When the store changes, `useSelector` gives the
+new watchlist and the status is automatically correct at the next render.
+
+**What does `dispatch(MARK_AS_PLANNED(movie.id))` send?**
+`MARK_AS_PLANNED(movie.id)` is an action creator made by `createSlice`. It returns the object
+`{ type: "WATCHLIST/MARK_AS_PLANNED", payload: "inception" }`, and `dispatch` sends it to the store.

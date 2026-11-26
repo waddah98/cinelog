@@ -1,15 +1,11 @@
 import Navbar from "./Navbar";
 
+// The watchlist count comes from the Redux store (see .storybook/preview.jsx),
+// so the Navbar has no props.
 export default {
   title: "Organisms/Navbar",
   component: Navbar,
   tags: ["autodocs"],
 };
 
-export const EmptyWatchlist = {
-  args: { watchlistCount: 0 },
-};
-
-export const WithSavedMovies = {
-  args: { watchlistCount: 4 },
-};
+export const Default = {};

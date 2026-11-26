@@ -1,15 +1,13 @@
 import { useNavigate } from "react-router";
-import { useWatchlist } from "../../hooks/useWatchlist";
 import MainLayout from "../../templates/MainLayout/MainLayout";
 import EmptyState from "../../components/molecules/EmptyState/EmptyState";
 
 // Page shown for unknown URLs (the "*" route).
 function NotFoundPage() {
   const navigate = useNavigate();
-  const { watchlist } = useWatchlist();
 
   return (
-    <MainLayout watchlistCount={watchlist.length}>
+    <MainLayout>
       <EmptyState
         icon="🧭"
         title="Page not found"

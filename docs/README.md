@@ -31,8 +31,8 @@ Each screen document follows the same plan:
 CineTrack is a movie discovery and tracking app. The user can browse a catalog of 20 movies, open the
 details of a movie, save movies in a watchlist, mark them as watched, and see statistics on a profile page.
 
-There is **no backend**: the movies come from a local JavaScript file and the watchlist is saved in the
-browser's `localStorage`, so it is still there after a refresh.
+There is **no backend**: the movies come from a local JavaScript file. The watchlist lives in a
+**Redux store**, and **Redux Persist** saves it in the browser, so it is still there after a refresh.
 
 ### 2. Tools (all seen in class)
 
@@ -41,6 +41,8 @@ browser's `localStorage`, so it is still there after a refresh.
 | **Vite** (`npm create vite@latest -- --template react`) | Creates and runs the React project | Ch. 3 — Installation |
 | **React** function components + hooks | The whole interface | Ch. 3, 4, 6 |
 | **React Router** (`react-router`) | One URL per screen, navigation without reloading | Ch. 5 |
+| **Redux Toolkit** + **react-redux** | One shared store for the watchlist, read and changed from any page | Ch. 7 |
+| **Redux Persist** | Saves the watchlist part of the store, restores it after a refresh | Ch. 7 |
 | **Storybook** | Shows each component alone, with its different states | Ch. 8 |
 | **CSS files** (one per component) | Styling and responsive layout | — |
 
@@ -59,7 +61,8 @@ src/
 ├── templates/               Page structure: MainLayout, CatalogLayout
 ├── pages/                   One folder per screen: HomePage, ExplorePage, MovieDetailsPage, WatchlistPage,
 │                            ProfilePage, NotFoundPage
-├── hooks/useWatchlist.js    Custom hook: the watchlist and its actions
+├── store/store.js           The Redux store (configureStore + Redux Persist)
+├── features/watchlistSlice.js  The watchlist slice: its state, its reducers and its actions
 ├── data/                    movies.js (the catalog), user.js (the mock user)
 └── styles/                  variables.css (colors, sizes), globals.css
 ```
@@ -93,20 +96,27 @@ SearchBar ──► Input   (the user types → onChange is called → the page 
 
 ### 5. Entry point and routing (Chapter 5)
 
-[`main.jsx`](../src/main.jsx) is exactly the structure from the course:
+[`main.jsx`](../src/main.jsx) is exactly the structure from the course (Chapter 7, Redux Persist slide):
 
 ```jsx
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </PersistGate>
+    </Provider>
   </StrictMode>
 );
 ```
 
 - `createRoot` creates the React root inside `<div id="root">`.
 - `StrictMode` helps find problems during development.
+- `Provider` (react-redux) gives every component access to the Redux store.
+- `PersistGate` waits until Redux Persist has restored the saved watchlist before showing the app.
+  `loading={null}` means nothing is shown during this very short wait.
 - `BrowserRouter` gives every component access to the URL.
 
 [`AppRouter.jsx`](../src/routes/AppRouter.jsx) lists all the routes in one place:
@@ -132,41 +142,113 @@ Every page is wrapped in `MainLayout`, which shows the `Navbar`, the page conten
 
 - It uses the special prop **`children`** (Chapter 4): whatever the page puts between
   `<MainLayout>` and `</MainLayout>` is displayed inside `<main>`.
-- It receives `watchlistCount` and passes it to the `Navbar` badge.
 - It has one `useEffect` with an **empty dependency array** (Chapter 5, "useEffect au montage"):
   when a new page appears, it runs `window.scrollTo(0, 0)` so the new page starts at the top.
 
 #### `Navbar` (organism) — [`Navbar.jsx`](../src/components/organisms/Navbar/Navbar.jsx)
 
 - Four `NavLink`s: Home, Explore, Watchlist (with the count), Profile.
+- The count is read **directly from the Redux store**:
+  `const watchlistCount = useSelector((state) => state.watchlist.items.length);`
+  This is the advantage of a store: the Navbar gets the data itself, no page has to pass it through props.
 - `NavLink to="/" end`: `end` means "only active on exactly `/`", otherwise Home would be highlighted on every page.
 - **Local state** `isMenuOpen` (`useState(false)`) for the mobile menu. The ☰ button calls `toggleMenu`, which
   does `setIsMenuOpen(!isMenuOpen)`. When the state is `true`, the class `navbar__links--open` is added
   and the CSS shows the links.
 - The ☰ button is hidden on screens wider than 768px with a CSS media query.
 
-#### `useWatchlist` (custom hook) — [`useWatchlist.js`](../src/hooks/useWatchlist.js)
+#### The Redux store — [`store/store.js`](../src/store/store.js) and [`features/watchlistSlice.js`](../src/features/watchlistSlice.js)
 
-The heart of the app. A custom hook is "a function created by the developer, whose name starts with `use`,
-that can use other hooks, to reuse logic in several components" (Chapter 6). All six pages need the watchlist
-(at least for the Navbar count), so the logic is written once here.
+The heart of the app. Chapter 7: "`useState` keeps a state **local** to one component. Several components
+need the same data. Redux **centralizes** the shared data in a **store**, and every change goes through an
+**action**." The watchlist is needed by every page (and by the Navbar), so it lives in the store.
 
-**How it works:**
+**The Redux circuit in 4 steps (Chapter 7):**
 
-```js
-const [watchlist, setWatchlist] = useState(loadWatchlist());
-
-useEffect(() => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(watchlist));
-}, [watchlist]);
+```
+1. The user clicks a button               (MovieCard "+")
+2. useDispatch sends an action            dispatch(TOGGLE_WATCHLIST({ movieId, date }))
+3. The reducer of the slice updates       state.items.push(...)
+   the state
+4. useSelector reads the new state        useSelector((state) => state.watchlist.items)
+   and React updates the display          -> the card shows ✓, the Navbar count changes
 ```
 
-1. `loadWatchlist()` reads the text saved under the key `"cinetrack-watchlist"` and turns it back into an
-   array with `JSON.parse`. If nothing is saved, it returns `[]`. A `try/catch` protects against broken
-   saved text (the course says: always plan a `try/catch` for errors).
-2. That array is the **initial value** of `useState`.
-3. `useEffect` with `[watchlist]` as dependency (Chapter 5, "useEffect lors d'une mise à jour"): every
-   time the watchlist changes, it is saved again as text with `JSON.stringify`.
+**The slice** (`createSlice`, written like the course's `counterSlice`):
+
+```js
+const initialState = { items: [] };
+
+const watchlistSlice = createSlice({
+  name: "WATCHLIST",
+  initialState,
+  reducers: {
+    ADD_TO_WATCHLIST(state, action) { ... },
+    REMOVE_FROM_WATCHLIST(state, action) { ... },
+    MARK_AS_WATCHED(state, action) { ... },
+    MARK_AS_PLANNED(state, action) { ... },
+    TOGGLE_WATCHLIST(state, action) { ... },
+  },
+});
+
+export const { ADD_TO_WATCHLIST, REMOVE_FROM_WATCHLIST, MARK_AS_WATCHED, MARK_AS_PLANNED, TOGGLE_WATCHLIST } =
+  watchlistSlice.actions;
+export default watchlistSlice.reducer;
+```
+
+| Action | Payload | What the reducer does |
+|---|---|---|
+| `ADD_TO_WATCHLIST` | `{ movieId, date }` | Adds a `"planned"` entry (does nothing if already saved: no duplicates) |
+| `REMOVE_FROM_WATCHLIST` | `movieId` | Keeps every entry except this one (`filter`) |
+| `MARK_AS_WATCHED` | `{ movieId, date }` | Changes the status to `"watched"`; adds the movie if it was not saved |
+| `MARK_AS_PLANNED` | `movieId` | Changes the status back to `"planned"` |
+| `TOGGLE_WATCHLIST` | `{ movieId, date }` | Adds if missing, removes if saved (used by the bookmark buttons) |
+
+- `createSlice` creates the actions automatically: `TOGGLE_WATCHLIST(payload)` returns the object
+  `{ type: "WATCHLIST/TOGGLE_WATCHLIST", payload: payload }`.
+- Inside a `createSlice` reducer we can write `state.items.push(...)` or `entry.status = "watched"`, like
+  `state.value += 1` in the course. Redux Toolkit turns this into a **new state** behind the scenes, so the
+  rule "a reducer returns a new state without modifying the old one" is still respected.
+- **Why is the date in the payload?** A reducer must be a **pure function** (Chapter 7): same state + same
+  action = same result. `new Date()` gives a different value each time, so the page creates the date and sends
+  it inside the action.
+- `getStatus(items, movieId)` is a small helper exported from the same file (not a reducer): it returns
+  `"none"`, `"planned"` or `"watched"`.
+
+**The store** (written like the course's `store.js`):
+
+```js
+const rootReducer = combineReducers({
+  watchlist: watchlistReducer,
+});
+
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["watchlist"],
+};
+
+export const store = configureStore({
+  reducer: persistReducer(persistConfig, rootReducer),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }),
+});
+
+export const persistor = persistStore(store);
+```
+
+- `combineReducers`: lists the parts of the store. `state.watchlist` is managed by the watchlist reducer.
+- `persistConfig`: Redux Persist saves the store under the key `persist:root` in the browser's
+  `localStorage`. The **whitelist** says which parts are saved: here, `watchlist`.
+- `ignoredActions`: the Redux Persist actions are ignored by the "serializable" check of Redux Toolkit
+  (same lines as in the course).
+- `storage` is imported from `redux-persist/es/storage`: it is the same localStorage storage as
+  `redux-persist/lib/storage`, but in the format that Vite can load (with `lib/storage` the app crashes with
+  "storage.getItem is not a function").
 
 **One watchlist entry:**
 
@@ -177,22 +259,23 @@ useEffect(() => {
 Only the id is saved, never the title or poster: the movie details always come from `data/movies.js`,
 so there is a single copy of the movie data.
 
-**Functions returned by the hook:**
+**How a page uses the store** (the same lines in Home, Explore, Watchlist and Profile):
 
-| Function | What it does |
-|---|---|
-| `isInWatchlist(movieId)` | `true` if the movie is saved |
-| `getStatus(movieId)` | `"none"`, `"planned"` or `"watched"` |
-| `addToWatchlist(movieId)` | Adds a `"planned"` entry (does nothing if already saved: no duplicates) |
-| `removeFromWatchlist(movieId)` | Keeps every entry except this one (`filter`) |
-| `markAsWatched(movieId)` | Changes the status to `"watched"` (`map` + spread); adds it if missing |
-| `markAsPlanned(movieId)` | Changes the status back to `"planned"` |
-| `toggleWatchlist(movieId)` | Add if missing, remove if saved (used by the bookmark buttons) |
+```js
+const watchlist = useSelector((state) => state.watchlist.items);
+const dispatch = useDispatch();
 
-**Immutability:** the state is never changed directly. Every function builds a **new array**
-(`[...watchlist, newEntry]`, `filter`, `map` with `{ ...item, status: "watched" }`) and gives it to
-`setWatchlist`. React sees a new array, so it re-renders. This is the same rule as the reducers in
-Chapter 7: "return a new state without modifying the old one".
+function getMovieStatus(movieId) {
+  return getStatus(watchlist, movieId);
+}
+
+function handleToggleWatchlist(movieId) {
+  dispatch(TOGGLE_WATCHLIST({ movieId: movieId, date: new Date().toISOString() }));
+}
+```
+
+The page then passes `getMovieStatus` and `handleToggleWatchlist` to its organisms through props, so the
+atoms and molecules stay simple and do not know about Redux (Chapter 8).
 
 #### The data — [`data/movies.js`](../src/data/movies.js) and [`data/user.js`](../src/data/user.js)
 
@@ -221,7 +304,7 @@ Chapter 7: "return a new state without modifying the old one".
 | `EmptyState` | Molecule | `icon, title, message, actionLabel, onAction` | Every empty list, 404 |
 | `StatCard` | Molecule | `label, value, description` | WatchlistSummary |
 | `UserSummary` | Molecule | `name, bio, avatar` | ProfileSummary |
-| `Navbar` | Organism | `watchlistCount` | MainLayout |
+| `Navbar` | Organism | none (reads the count with `useSelector`) | MainLayout |
 | `HeroBanner` | Organism | `movie, isInWatchlist, onViewDetails, onToggleWatchlist` | Home |
 | `MovieGrid` | Organism | `movies, getStatus`, the 4 callbacks, `empty...` props | Explore, Watchlist, MovieSection |
 | `MovieSection` | Organism | `title, description, actionLabel, actionTo, movies, ...` | Home, Profile |
@@ -268,9 +351,12 @@ export const Danger = { args: { variant: "danger", children: "Remove" } };
 
 | Choice | Reason |
 |---|---|
-| **Each page calls `useWatchlist()`** | Only one page is visible at a time. When a page appears, its `useState` reads the latest saved list from `localStorage`, so every page is always up to date. |
-| **`localStorage` instead of Redux Toolkit + Redux Persist** | Redux (Chapter 7) is the course tool for shared, saved state. For one small list, a custom hook with `useState` + `useEffect` does the same job with about 15 lines and no extra library. |
-| **No `useContext`** | Context avoids passing props through many levels. Here the page passes the data at most 3 levels down, which stays easy to read. |
+| **Redux Toolkit for the watchlist** | The watchlist is shared by every page and by the Navbar. Chapter 7: shared data goes in a store, and every change is a named action (easy to follow in Redux DevTools). |
+| **Redux Persist** | The watchlist must survive a refresh. Redux Persist saves the `watchlist` part of the store (whitelist) and `PersistGate` restores it at start-up. |
+| **Local `useState` for the screen state** | The search, the filters and the mobile menu only matter on one screen and do not need to be saved, so they stay in `useState` (Chapter 7: "useState keeps a state local to the component"). |
+| **The page dispatches, the atoms do not** | Only pages (and the Navbar) use `useSelector` / `useDispatch`. Atoms and molecules receive props and callbacks, so they stay reusable and work in Storybook without Redux. |
+| **The date is sent in the action** | Reducers must be pure functions, so `new Date()` is called in the page, not in the reducer. |
+| **No `useContext`** | Context also shares data, but Redux was chosen for the watchlist because it also gives named actions and Redux Persist. |
 | **No `useMemo` / `useCallback`** | The course says they are optimizations for *expensive* calculations. Filtering 20 movies is instant. |
 | **The page owns the state** | Chapter 8 rule: atoms and molecules only display and call callbacks, so they stay simple, reusable and easy to test in Storybook. |
 | **Only ids in the watchlist** | One single copy of the movie data (`movies.js`); the watchlist only stores the user's information. |
@@ -286,12 +372,21 @@ child. State belongs to the component and can change; when it changes, React re-
 Example: `ExplorePage` owns the state `search`; `SearchBar` only receives it as the prop `value`.
 
 **What happens when the user clicks the bookmark on a card?** `IconButton` calls `onClick` →
-`MovieCard` calls `onToggleWatchlist(movie.id)` → this is the `toggleWatchlist` function of the page's
-`useWatchlist` → `setWatchlist(newArray)` → React re-renders the page with the new list → the `useEffect`
-saves it in `localStorage`.
+`MovieCard` calls `onToggleWatchlist(movie.id)` → this is the page's `handleToggleWatchlist` →
+`dispatch(TOGGLE_WATCHLIST({ movieId, date }))` → the reducer adds the entry to `state.watchlist.items` →
+`useSelector` in the page and in the Navbar receives the new list → React re-renders (✓ on the card, count + 1)
+→ Redux Persist saves the store in `localStorage`.
+
+**Why Redux and not just `useState`?** The watchlist is needed by every page and by the Navbar. With
+`useState` it would have to live in a common parent and be passed down through props everywhere. The store
+is available to any component with `useSelector`, and every change is a clear, named action.
 
 **Why does a list need a `key`?** So React can recognise each element between two renders. We use the movie
 id, which is unique and never changes.
+
+**What is the difference between `useSelector` and `useDispatch`?** `useSelector` **reads** a value in the
+store and re-renders the component when it changes; it never modifies the state. `useDispatch` gives the
+`dispatch` function, which **sends an action**; it is the only way to change the store.
 
 **What are the rules of hooks?** Hooks are called at the top level of a function component (or of a custom
 hook), never inside a condition or a loop. Their names start with `use`.

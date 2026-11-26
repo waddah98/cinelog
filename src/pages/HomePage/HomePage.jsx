@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import { movies } from "../../data/movies";
-import { useWatchlist } from "../../hooks/useWatchlist";
+import { TOGGLE_WATCHLIST, getStatus } from "../../features/watchlistSlice";
 import MainLayout from "../../templates/MainLayout/MainLayout";
 import Button from "../../components/atoms/Button/Button";
 import HeroBanner from "../../components/organisms/HeroBanner/HeroBanner";
@@ -32,15 +33,24 @@ recentMovies.sort((a, b) => b.addedAt.localeCompare(a.addedAt));
 // Page: the starting point for discovering movies.
 function HomePage() {
   const navigate = useNavigate();
-  const { watchlist, toggleWatchlist, getStatus, isInWatchlist } = useWatchlist();
+  const watchlist = useSelector((state) => state.watchlist.items);
+  const dispatch = useDispatch();
+
+  function getMovieStatus(movieId) {
+    return getStatus(watchlist, movieId);
+  }
+
+  function handleToggleWatchlist(movieId) {
+    dispatch(TOGGLE_WATCHLIST({ movieId: movieId, date: new Date().toISOString() }));
+  }
 
   return (
-    <MainLayout watchlistCount={watchlist.length}>
+    <MainLayout>
       <HeroBanner
         movie={featuredMovie}
-        isInWatchlist={isInWatchlist(featuredMovie.id)}
+        isInWatchlist={getMovieStatus(featuredMovie.id) !== "none"}
         onViewDetails={() => navigate("/movies/" + featuredMovie.id)}
-        onToggleWatchlist={toggleWatchlist}
+        onToggleWatchlist={handleToggleWatchlist}
       />
 
       <MovieSection
@@ -49,8 +59,8 @@ function HomePage() {
         actionLabel="See all"
         actionTo="/explore"
         movies={trendingMovies}
-        getStatus={getStatus}
-        onToggleWatchlist={toggleWatchlist}
+        getStatus={getMovieStatus}
+        onToggleWatchlist={handleToggleWatchlist}
       />
 
       <MovieSection
@@ -59,8 +69,8 @@ function HomePage() {
         actionLabel="See all"
         actionTo="/explore"
         movies={topRatedMovies.slice(0, SECTION_SIZE)}
-        getStatus={getStatus}
-        onToggleWatchlist={toggleWatchlist}
+        getStatus={getMovieStatus}
+        onToggleWatchlist={handleToggleWatchlist}
       />
 
       <MovieSection
@@ -69,8 +79,8 @@ function HomePage() {
         actionLabel="See all"
         actionTo="/explore"
         movies={recentMovies.slice(0, SECTION_SIZE)}
-        getStatus={getStatus}
-        onToggleWatchlist={toggleWatchlist}
+        getStatus={getMovieStatus}
+        onToggleWatchlist={handleToggleWatchlist}
       />
 
       <section className="home-page__explore">

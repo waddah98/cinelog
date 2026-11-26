@@ -1,14 +1,18 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router";
+import { useSelector } from "react-redux";
 import IconButton from "../../atoms/IconButton/IconButton";
 import "./Navbar.css";
 
 // Organism: the main navigation bar shown on every page.
-// - watchlistCount: number shown next to the "Watchlist" link
+// It reads the number of saved movies directly from the Redux store with useSelector,
+// so no page needs to pass it down through props.
 //
 // NavLink (from React Router) automatically adds the class "active"
 // to the link of the page we are on. Navbar.css uses it to highlight the link.
-function Navbar({ watchlistCount = 0 }) {
+function Navbar() {
+  const watchlistCount = useSelector((state) => state.watchlist.items.length);
+
   // Local state: is the mobile menu open?
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

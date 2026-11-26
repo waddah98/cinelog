@@ -44,8 +44,14 @@ the `MovieGrid` through `children`. A prop can contain a component (Chapter 4).
 const [search, setSearch] = useState("");
 const [selectedGenre, setSelectedGenre] = useState("all");
 const [sortBy, setSortBy] = useState("rating");
-const { watchlist, toggleWatchlist, getStatus } = useWatchlist();
+const watchlist = useSelector((state) => state.watchlist.items);
+const dispatch = useDispatch();
 ```
+
+The search, genre and sort are **local `useState`**: they only matter on this screen and are not saved.
+The watchlist comes from the **Redux store** (Chapter 7), because it is shared by every page. The bookmark
+buttons use the same `getMovieStatus` and `handleToggleWatchlist` functions as the Home page
+(see [Home page](02-home-page.md)).
 
 | State | Initial value | Changed by |
 |---|---|---|
@@ -181,6 +187,7 @@ A ternary operator (conditional rendering, Chapter 3).
 | A component passed as a prop + `children` | `CatalogLayout filters={...}` | Ch. 4 |
 | Conditional rendering (`&&`, ternary) | ✕ button, counter, empty message | Ch. 3 |
 | `filter`, `includes`, `sort`, spread | filtering | Ch. 1 |
+| Redux `useSelector` / `useDispatch` | bookmark buttons on the cards | Ch. 7 |
 
 ## 6. Questions you might be asked
 

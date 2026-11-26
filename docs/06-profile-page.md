@@ -38,13 +38,17 @@ ProfilePage (page)
 ## 3. State and data
 
 ```js
-const { watchlist, getStatus, toggleWatchlist } = useWatchlist();
+const watchlist = useSelector((state) => state.watchlist.items);
+const dispatch = useDispatch();
 ```
+
+The bookmark buttons of "Recently watched" use the same `getMovieStatus` and `handleToggleWatchlist`
+functions as the Home page (see [Home page](02-home-page.md)).
 
 | What | Where it comes from |
 |---|---|
 | The user | `mockUser` from `data/user.js` (there is no login in CineTrack) |
-| The watchlist | `useWatchlist()` |
+| The watchlist | The Redux store, read with `useSelector` |
 | Counters, recently watched, genre statistics, favorite genre | **calculated** in the page at every render |
 
 The page has **no `useState`**. If the user marks a movie as watched on another page and comes back here,
@@ -161,7 +165,7 @@ If the image is missing or fails (`onError`), the avatar shows the user's initia
 | Concept | Where | Chapter |
 |---|---|---|
 | Values derived from the state (no extra state) | counters, statistics, favorite genre | Ch. 4 |
-| Custom hook | `useWatchlist()` | Ch. 6 |
+| Redux `useSelector` | reading the watchlist | Ch. 7 |
 | `Object.entries`, destructuring, `forEach`, `map`, `filter`, `sort`, spread | `countGenres`, lists | Ch. 1 |
 | Inline style object | bar width | Ch. 3 |
 | Conditional rendering + early return | `GenreStatistics`, `ProfileSummary`, `Avatar` | Ch. 3 |

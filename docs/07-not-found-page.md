@@ -21,10 +21,10 @@ NotFoundPage (page)
 
 ```js
 const navigate = useNavigate();
-const { watchlist } = useWatchlist();
 ```
 
-The page only needs `watchlist.length` for the Navbar badge, so it takes only `watchlist` from the hook.
+The page has no state and does not read the store: the Navbar inside `MainLayout` reads the watchlist count
+from the Redux store by itself.
 
 ## 4. Step by step
 
@@ -43,10 +43,9 @@ In [`AppRouter.jsx`](../src/routes/AppRouter.jsx), the last route is:
 ```jsx
 function NotFoundPage() {
   const navigate = useNavigate();
-  const { watchlist } = useWatchlist();
 
   return (
-    <MainLayout watchlistCount={watchlist.length}>
+    <MainLayout>
       <EmptyState
         icon="🧭"
         title="Page not found"
@@ -101,5 +100,6 @@ route `/movies/:movieId` but with an id that does not exist (`/movies/abc`); it 
 React Router chooses the best matching route, so `*` is only used when nothing else matches. Putting it last
 in the list also makes the code easier to read.
 
-**Why does this page call `useWatchlist`?**
-Only to show the correct number in the Navbar badge, so the Navbar looks the same on every screen.
+**How does the Navbar show the right count on this page?**
+The Navbar uses `useSelector` to read the count from the Redux store itself. This page does not need to know
+about the watchlist at all: that is the advantage of a shared store.

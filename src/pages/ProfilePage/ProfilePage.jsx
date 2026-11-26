@@ -1,6 +1,7 @@
+import { useDispatch, useSelector } from "react-redux";
 import { getMovieById } from "../../data/movies";
 import { mockUser } from "../../data/user";
-import { useWatchlist } from "../../hooks/useWatchlist";
+import { TOGGLE_WATCHLIST, getStatus } from "../../features/watchlistSlice";
 import MainLayout from "../../templates/MainLayout/MainLayout";
 import ProfileSummary from "../../components/organisms/ProfileSummary/ProfileSummary";
 import WatchlistSummary from "../../components/organisms/WatchlistSummary/WatchlistSummary";
@@ -45,7 +46,16 @@ function countGenres(watchedMovies) {
 // Nothing here is saved separately: every number is calculated
 // from the current watchlist each time the page renders.
 function ProfilePage() {
-  const { watchlist, getStatus, toggleWatchlist } = useWatchlist();
+  const watchlist = useSelector((state) => state.watchlist.items);
+  const dispatch = useDispatch();
+
+  function getMovieStatus(movieId) {
+    return getStatus(watchlist, movieId);
+  }
+
+  function handleToggleWatchlist(movieId) {
+    dispatch(TOGGLE_WATCHLIST({ movieId: movieId, date: new Date().toISOString() }));
+  }
 
   const watchedEntries = watchlist.filter((entry) => entry.status === "watched");
   const plannedCount = watchlist.length - watchedEntries.length;
@@ -63,7 +73,7 @@ function ProfilePage() {
   }
 
   return (
-    <MainLayout watchlistCount={watchlist.length}>
+    <MainLayout>
       <ProfileSummary user={mockUser} favoriteGenre={favoriteGenre} />
 
       <section className="profile-page__section">
@@ -84,8 +94,8 @@ function ProfilePage() {
         title="Recently watched"
         description="The last movies you marked as watched."
         movies={watchedMovies.slice(0, 5)}
-        getStatus={getStatus}
-        onToggleWatchlist={toggleWatchlist}
+        getStatus={getMovieStatus}
+        onToggleWatchlist={handleToggleWatchlist}
         emptyTitle="Nothing watched yet"
         emptyMessage="Movies you mark as watched will show up here."
       />

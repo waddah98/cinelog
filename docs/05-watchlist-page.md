@@ -37,13 +37,14 @@ WatchlistPage (page)  ← owns the state: statusFilter
 
 ```js
 const navigate = useNavigate();
-const { watchlist, getStatus, markAsWatched, markAsPlanned, removeFromWatchlist } = useWatchlist();
+const watchlist = useSelector((state) => state.watchlist.items);
+const dispatch = useDispatch();
 const [statusFilter, setStatusFilter] = useState("all");
 ```
 
 | What | Type | Where |
 |---|---|---|
-| `watchlist` | shared, saved data | custom hook `useWatchlist` |
+| `watchlist` | shared, saved data | Redux store, read with `useSelector` |
 | `statusFilter` | local screen state (`"all"`, `"planned"`, `"watched"`) | `useState` in the page |
 | `plannedCount`, `watchedCount`, `visibleMovies`, empty texts | **calculated** at every render | in the page |
 
@@ -136,15 +137,31 @@ const statusFilters = [
 
 ### The action buttons on the cards
 
-The page gives three callbacks to `MovieGrid`, which passes them to every `MovieCard`:
+The page writes three small handlers, one per Redux action:
+
+```js
+function handleMarkWatched(movieId) {
+  dispatch(MARK_AS_WATCHED({ movieId: movieId, date: new Date().toISOString() }));
+}
+
+function handleMarkPlanned(movieId) {
+  dispatch(MARK_AS_PLANNED(movieId));
+}
+
+function handleRemove(movieId) {
+  dispatch(REMOVE_FROM_WATCHLIST(movieId));
+}
+```
+
+and gives them to `MovieGrid`, which passes them to every `MovieCard`:
 
 ```jsx
 <MovieGrid
   movies={visibleMovies}
-  getStatus={getStatus}
-  onMarkWatched={markAsWatched}
-  onMarkPlanned={markAsPlanned}
-  onRemove={removeFromWatchlist}
+  getStatus={getMovieStatus}
+  onMarkWatched={handleMarkWatched}
+  onMarkPlanned={handleMarkPlanned}
+  onRemove={handleRemove}
   ...
 />
 ```
@@ -169,16 +186,20 @@ props change.
 
 ### The user clicks "Remove"
 
-1. `MovieCard` calls `onRemove(movie.id)` → `removeFromWatchlist` in the hook.
-2. `watchlist.filter((item) => item.movieId !== movieId)` builds a new array without this movie.
-3. `setWatchlist(newList)` → the page re-renders: the card disappears, the counters and the Navbar badge change.
-4. The `useEffect` saves the new list in `localStorage`.
+1. `MovieCard` calls `onRemove(movie.id)` → the page's `handleRemove` →
+   `dispatch(REMOVE_FROM_WATCHLIST(movieId))`.
+2. The reducer keeps every entry except this one:
+   `state.items = state.items.filter((item) => item.movieId !== action.payload);`
+3. `useSelector` gives the new list to the page and to the Navbar → the card disappears, the counters and
+   the Navbar badge change.
+4. Redux Persist saves the store in `localStorage`.
 
 ## 5. Course concepts used
 
 | Concept | Where | Chapter |
 |---|---|---|
-| Local `useState` vs shared custom hook | `statusFilter` vs `useWatchlist` | Ch. 4, 6 |
+| Local `useState` vs shared Redux store | `statusFilter` vs `state.watchlist` | Ch. 4, 7 |
+| `useDispatch` + 3 actions | the card buttons | Ch. 7 |
 | Lists generated with `map` + `key` | filter buttons, grid | Ch. 3–5 |
 | Conditional rendering (ternary, `&&`) | empty messages, card buttons | Ch. 3 |
 | Callbacks passed down 2 levels | page → `MovieGrid` → `MovieCard` | Ch. 8 |
@@ -188,13 +209,14 @@ props change.
 
 ## 6. Questions you might be asked
 
-**Why is `statusFilter` a `useState` and not saved in `localStorage` like the watchlist?**
-It is only a display choice for this screen. When the user comes back, starting on "All" is normal. Only
-the user's real data (the watchlist) needs to be saved.
+**Why is `statusFilter` a `useState` and not in the Redux store like the watchlist?**
+It is only a display choice for this screen: no other component needs it and it does not need to be saved.
+When the user comes back, starting on "All" is normal. Only shared data (the watchlist) goes in the store.
 
 **Why `[...visibleEntries]` before sorting?**
-When the filter is "All", `visibleEntries` **is** the `watchlist` array from the state. Sorting it directly
-would modify the state without `setWatchlist`, which React forbids.
+When the filter is "All", `visibleEntries` **is** the `watchlist` array from the Redux store. The store can
+only be changed by a reducer (through `dispatch`); Redux Toolkit even freezes this array, so sorting it
+directly would throw an error.
 
 **How does the same `MovieCard` show different buttons on different pages?**
 The card checks which callbacks it receives. On Home it only gets `onToggleWatchlist`, on this page it gets

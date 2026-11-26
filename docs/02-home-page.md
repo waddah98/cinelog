@@ -38,11 +38,12 @@ HomePage (page)
 | What | Where it comes from |
 |---|---|
 | The catalog | `movies` imported from `data/movies.js` |
-| The watchlist | `useWatchlist()` → `watchlist`, `toggleWatchlist`, `getStatus`, `isInWatchlist` |
+| The watchlist | The Redux store: `useSelector((state) => state.watchlist.items)` |
+| Changing the watchlist | `useDispatch()` + the action `TOGGLE_WATCHLIST` |
 | Navigation | `useNavigate()` from React Router |
 
 The page has **no `useState` of its own**: the only data that changes is the watchlist, and it lives in
-the custom hook.
+the Redux store.
 
 ### The movie lists are calculated once, outside the component
 
@@ -79,37 +80,50 @@ recentMovies.sort((a, b) => b.addedAt.localeCompare(a.addedAt));
 ```jsx
 function HomePage() {
   const navigate = useNavigate();
-  const { watchlist, toggleWatchlist, getStatus, isInWatchlist } = useWatchlist();
+  const watchlist = useSelector((state) => state.watchlist.items);
+  const dispatch = useDispatch();
+
+  function getMovieStatus(movieId) {
+    return getStatus(watchlist, movieId);
+  }
+
+  function handleToggleWatchlist(movieId) {
+    dispatch(TOGGLE_WATCHLIST({ movieId: movieId, date: new Date().toISOString() }));
+  }
 
   return (
-    <MainLayout watchlistCount={watchlist.length}>
+    <MainLayout>
       <HeroBanner
         movie={featuredMovie}
-        isInWatchlist={isInWatchlist(featuredMovie.id)}
+        isInWatchlist={getMovieStatus(featuredMovie.id) !== "none"}
         onViewDetails={() => navigate("/movies/" + featuredMovie.id)}
-        onToggleWatchlist={toggleWatchlist}
+        onToggleWatchlist={handleToggleWatchlist}
       />
       <MovieSection
         title="Trending now"
         ...
         movies={trendingMovies}
-        getStatus={getStatus}
-        onToggleWatchlist={toggleWatchlist}
+        getStatus={getMovieStatus}
+        onToggleWatchlist={handleToggleWatchlist}
       />
       ...
 ```
 
-- The hook result is an object, read with **destructuring** (Chapter 1, ES6).
-- `watchlist.length` goes to `MainLayout`, which gives it to the Navbar badge.
-- The page passes **functions** as props (`onViewDetails`, `onToggleWatchlist`, `getStatus`): the
-  organisms do not know how the watchlist works, they just call what they receive.
+- `useSelector` **reads** the watchlist from the store; `useDispatch` gives the `dispatch` function that
+  **sends actions** (Chapter 7).
+- `getMovieStatus` and `handleToggleWatchlist` are two small functions of the page. The page passes them as
+  props (`getStatus`, `onToggleWatchlist`): the organisms do not know about Redux, they just call what they
+  receive (Chapter 8).
 
 ### The user clicks "+ Add to watchlist" in the banner
 
 1. In `HeroBanner`, the button runs `onClick={() => onToggleWatchlist(movie.id)}`.
-2. `onToggleWatchlist` is the `toggleWatchlist` function from `useWatchlist`.
-3. The movie is not saved yet, so `addToWatchlist` creates a new entry and calls `setWatchlist([...watchlist, newEntry])`.
-4. React re-renders `HomePage`: `isInWatchlist(featuredMovie.id)` is now `true`.
+2. `onToggleWatchlist` is the page's `handleToggleWatchlist`, which sends the action
+   `dispatch(TOGGLE_WATCHLIST({ movieId: "inception", date: "..." }))`.
+3. In the slice, the `TOGGLE_WATCHLIST` reducer does not find the movie, so it adds a `"planned"` entry
+   to `state.items`.
+4. `useSelector` gives the page the new list, React re-renders `HomePage`:
+   `getMovieStatus(featuredMovie.id) !== "none"` is now `true`.
 5. `HeroBanner` receives `isInWatchlist={true}` and changes its label:
 
    ```js
@@ -119,12 +133,13 @@ function HomePage() {
    }
    ```
 
-6. The Navbar count goes from 0 to 1, and the `useEffect` in the hook saves the new list in `localStorage`.
+6. The Navbar also uses `useSelector`, so its count goes from 0 to 1 by itself. Redux Persist saves the
+   new store in `localStorage`.
 
 ### The user clicks the + on a movie card
 
 The function is passed down as a prop through every level: `HomePage` → `MovieSection` → `MovieGrid` → `MovieCard` → `IconButton`.
-`MovieGrid` also calls `getStatus(movie.id)` for each card and passes the result as the prop `status`, which
+`MovieGrid` also calls `getStatus(movie.id)` (the page's `getMovieStatus`) for each card and passes the result as the prop `status`, which
 decides the icon (+ or ✓), the style (`active`) and the "Planned"/"Watched" badge.
 
 ### The user clicks "View details" or "Explore all movies"
@@ -138,7 +153,7 @@ React Router then shows the matching page.
 |---|---|---|
 | Function component, JSX | `HomePage` | Ch. 3 |
 | Props (data **and** functions) | `HeroBanner`, `MovieSection` | Ch. 3–4 |
-| Custom hook | `useWatchlist()` | Ch. 6 |
+| Redux: `useSelector`, `useDispatch`, action `TOGGLE_WATCHLIST` | the watchlist | Ch. 7 |
 | `useNavigate` | buttons | Ch. 5 |
 | `<Link>` | "See all →" in `MovieSection` | Ch. 5 |
 | Conditional rendering (`&&`) | `MovieSection` shows the link only if `actionLabel && actionTo` | Ch. 3 |
@@ -155,9 +170,13 @@ again at every render for nothing. Putting them outside is simpler than using `u
 **Why `slice(0, SECTION_SIZE)`?**
 To show only the first 5 movies of each list. The constant `SECTION_SIZE` avoids writing `5` in several places.
 
-**Why does `HeroBanner` receive `isInWatchlist` instead of calling the hook itself?**
-Chapter 8: the page owns the data, organisms only display props. This way `HeroBanner` can be shown in
-Storybook with `isInWatchlist: true` or `false` without any watchlist.
+**Why does `HeroBanner` receive `isInWatchlist` instead of using `useSelector` itself?**
+Chapter 8: the page gets the data, organisms only display props. This way `HeroBanner` can be shown in
+Storybook with `isInWatchlist: true` or `false` without any Redux store.
+
+**Why is the date created in the page and not in the reducer?**
+A reducer must be a pure function (Chapter 7). `new Date()` returns a different value each time, so it is
+created in `handleToggleWatchlist` and sent inside the action.
 
 **What happens if no movie has `isFeatured: true`?**
 `find` returns `undefined`, so the `if` uses `movies[0]` instead. The banner always has a movie.

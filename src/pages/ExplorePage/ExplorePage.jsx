@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { movies, getAllGenres } from "../../data/movies";
-import { useWatchlist } from "../../hooks/useWatchlist";
+import { TOGGLE_WATCHLIST, getStatus } from "../../features/watchlistSlice";
 import CatalogLayout from "../../templates/CatalogLayout/CatalogLayout";
 import FilterPanel from "../../components/organisms/FilterPanel/FilterPanel";
 import MovieGrid from "../../components/organisms/MovieGrid/MovieGrid";
@@ -33,7 +34,8 @@ function ExplorePage() {
   const [search, setSearch] = useState("");
   const [selectedGenre, setSelectedGenre] = useState("all");
   const [sortBy, setSortBy] = useState("rating");
-  const { watchlist, toggleWatchlist, getStatus } = useWatchlist();
+  const watchlist = useSelector((state) => state.watchlist.items);
+  const dispatch = useDispatch();
 
   // 1. Search: keep movies whose title contains the text (upper/lower case ignored).
   const searchText = search.trim().toLowerCase();
@@ -47,6 +49,14 @@ function ExplorePage() {
   // 3. Sort what is left.
   filteredMovies = sortMovies(filteredMovies, sortBy);
 
+  function getMovieStatus(movieId) {
+    return getStatus(watchlist, movieId);
+  }
+
+  function handleToggleWatchlist(movieId) {
+    dispatch(TOGGLE_WATCHLIST({ movieId: movieId, date: new Date().toISOString() }));
+  }
+
   function clearFilters() {
     setSearch("");
     setSelectedGenre("all");
@@ -55,7 +65,6 @@ function ExplorePage() {
 
   return (
     <CatalogLayout
-      watchlistCount={watchlist.length}
       title="Explore movies"
       description="Search the full CineTrack catalog, filter by genre and sort the results."
       filters={
@@ -74,8 +83,8 @@ function ExplorePage() {
     >
       <MovieGrid
         movies={filteredMovies}
-        getStatus={getStatus}
-        onToggleWatchlist={toggleWatchlist}
+        getStatus={getMovieStatus}
+        onToggleWatchlist={handleToggleWatchlist}
         emptyTitle="No movies match your filters"
         emptyMessage="Try a different title or genre, or clear the filters to see every movie."
         emptyActionLabel="Clear filters"

@@ -9,7 +9,6 @@ export default {
 // The template only places content; this story fills it with placeholder text.
 export const WithPlaceholderContent = {
   args: {
-    watchlistCount: 3,
     children: (
       <header className="page-header">
         <h1>Page title</h1>

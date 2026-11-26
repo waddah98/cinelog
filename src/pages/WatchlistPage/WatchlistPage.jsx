@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import { getMovieById } from "../../data/movies";
-import { useWatchlist } from "../../hooks/useWatchlist";
+import {
+  REMOVE_FROM_WATCHLIST,
+  MARK_AS_WATCHED,
+  MARK_AS_PLANNED,
+  getStatus,
+} from "../../features/watchlistSlice";
 import MainLayout from "../../templates/MainLayout/MainLayout";
 import Button from "../../components/atoms/Button/Button";
 import EmptyState from "../../components/molecules/EmptyState/EmptyState";
@@ -19,7 +25,8 @@ const statusFilters = [
 // Page: the user's saved movies, with status filter and actions.
 function WatchlistPage() {
   const navigate = useNavigate();
-  const { watchlist, getStatus, markAsWatched, markAsPlanned, removeFromWatchlist } = useWatchlist();
+  const watchlist = useSelector((state) => state.watchlist.items);
+  const dispatch = useDispatch();
 
   // Local page state: which status filter is selected.
   const [statusFilter, setStatusFilter] = useState("all");
@@ -41,6 +48,22 @@ function WatchlistPage() {
   // 3. Turn each entry into the full movie object from the catalog.
   const visibleMovies = sortedEntries.map((entry) => getMovieById(entry.movieId));
 
+  function getMovieStatus(movieId) {
+    return getStatus(watchlist, movieId);
+  }
+
+  function handleMarkWatched(movieId) {
+    dispatch(MARK_AS_WATCHED({ movieId: movieId, date: new Date().toISOString() }));
+  }
+
+  function handleMarkPlanned(movieId) {
+    dispatch(MARK_AS_PLANNED(movieId));
+  }
+
+  function handleRemove(movieId) {
+    dispatch(REMOVE_FROM_WATCHLIST(movieId));
+  }
+
   let emptyTitle = "No planned movies";
   let emptyMessage = "Every movie in your watchlist has been watched. Nice work!";
   if (statusFilter === "watched") {
@@ -49,7 +72,7 @@ function WatchlistPage() {
   }
 
   return (
-    <MainLayout watchlistCount={watchlist.length}>
+    <MainLayout>
       <header className="page-header">
         <h1>My Watchlist</h1>
         <p>Keep track of the movies you want to see and the ones you have already watched.</p>
@@ -82,10 +105,10 @@ function WatchlistPage() {
 
           <MovieGrid
             movies={visibleMovies}
-            getStatus={getStatus}
-            onMarkWatched={markAsWatched}
-            onMarkPlanned={markAsPlanned}
-            onRemove={removeFromWatchlist}
+            getStatus={getMovieStatus}
+            onMarkWatched={handleMarkWatched}
+            onMarkPlanned={handleMarkPlanned}
+            onRemove={handleRemove}
             emptyTitle={emptyTitle}
             emptyMessage={emptyMessage}
             emptyActionLabel="Show all"

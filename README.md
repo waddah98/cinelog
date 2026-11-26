@@ -5,7 +5,7 @@ You can browse a mock movie catalog, open a movie's details, keep a personal wat
 watched, and see simple watching statistics on your profile.
 
 Everything runs in the browser: there is **no backend, no login and no external API**. Movie data comes
-from a local file and your watchlist is saved in the browser's `localStorage`.
+from a local file and your watchlist lives in a Redux store, saved in the browser's `localStorage` by Redux Persist.
 
 > **Documentation:** the [`docs/`](docs/README.md) folder explains how every screen was built, which React
 > concepts from the course it uses, and the questions to expect during the presentation.
@@ -30,7 +30,8 @@ from a local file and your watchlist is saved in the browser's `localStorage`.
 | React Router | Pages and the `:movieId` URL parameter |
 | CSS (with variables, flexbox, grid, media queries) | Styling and responsive layout |
 | Storybook | Developing and documenting components in isolation |
-| Browser `localStorage` | Saving the watchlist |
+| Redux Toolkit + react-redux | The shared watchlist store (slice, actions, `useSelector`, `useDispatch`) |
+| Redux Persist | Saving the watchlist in `localStorage` and restoring it after a refresh |
 
 ## Getting started
 
@@ -63,9 +64,9 @@ Components are organised from the smallest to the largest:
 | **Molecules** | Small groups of atoms | SearchBar, MovieCard, GenreTag, MovieMetadata, StatCard, UserSummary, EmptyState |
 | **Organisms** | Larger, independent sections | Navbar, HeroBanner, MovieGrid, FilterPanel, MovieSection, ProfileSummary, WatchlistSummary, GenreStatistics |
 | **Templates** | Page layouts without real data | MainLayout, CatalogLayout |
-| **Pages** | Connect routes, data and hooks | HomePage, ExplorePage, MovieDetailsPage, WatchlistPage, ProfilePage (+ NotFoundPage fallback) |
+| **Pages** | Connect routes, data and the Redux store | HomePage, ExplorePage, MovieDetailsPage, WatchlistPage, ProfilePage (+ NotFoundPage fallback) |
 
-Components never load data themselves. Pages read the data and the hooks, then pass everything down through props.
+Components never load data themselves. Pages read the data and the Redux store, then pass everything down through props. The only other component that reads the store is the `Navbar` (for the watchlist count).
 For example, `MovieCard` is reused on Home, Explore, Watchlist and Profile, and it always receives its
 `movie`, its `status` and its click handlers from the parent.
 
@@ -82,7 +83,8 @@ cinetrack/
 │   │   └── organisms/
 │   ├── templates/         MainLayout, CatalogLayout
 │   ├── pages/             The five pages + NotFoundPage
-│   ├── hooks/             useWatchlist
+│   ├── store/             store.js (Redux store + Redux Persist)
+│   ├── features/          watchlistSlice.js (the watchlist slice)
 │   ├── data/              movies.js (catalog), user.js (mock user)
 │   ├── routes/            AppRouter.jsx (all routes)
 │   ├── styles/            variables.css (design tokens), globals.css
@@ -91,9 +93,12 @@ cinetrack/
 └── package.json
 ```
 
-## Custom hooks
+## State management (Redux Toolkit)
 
-- **`useWatchlist()`** keeps the watchlist in a `useState` and saves it in `localStorage` with a `useEffect` every time it changes. It provides `addToWatchlist`, `removeFromWatchlist`, `markAsWatched`, `markAsPlanned`, `toggleWatchlist`, `isInWatchlist` and `getStatus`, and prevents duplicates.
+- **`src/features/watchlistSlice.js`** is created with `createSlice`. Its state is `{ items: [] }` and its actions are `ADD_TO_WATCHLIST`, `REMOVE_FROM_WATCHLIST`, `MARK_AS_WATCHED`, `MARK_AS_PLANNED` and `TOGGLE_WATCHLIST`. It also exports a small `getStatus(items, movieId)` helper. Duplicates are prevented in the reducers.
+- **`src/store/store.js`** combines the reducers, wraps them with `persistReducer` (whitelist: `watchlist`) and exports `store` and `persistor`.
+- **`main.jsx`** wraps the app in `<Provider store={store}>` and `<PersistGate loading={null} persistor={persistor}>`.
+- Pages read the watchlist with `useSelector((state) => state.watchlist.items)` and change it with `dispatch(ACTION(payload))`. The date of an action is created in the page and sent in the payload, so the reducers stay pure.
 
 The search, genre and sort state of the Explore page lives directly in `ExplorePage` (the page owns the state and passes it to `FilterPanel` through props).
 
@@ -101,7 +106,7 @@ The search, genre and sort state of the Explore page lives directly in `ExploreP
 
 - `src/data/movies.js` holds the only copy of the movie catalog: 20 movies with unique string ids (for example `"inception"`) and the same fields on every movie. Every page imports from this file.
 - `src/data/user.js` holds the static mock user shown on the Profile page.
-- The watchlist is saved under the `localStorage` key **`cinetrack-watchlist`** as an array of entries:
+- Redux Persist saves the store under the `localStorage` key **`persist:root`**. The watchlist is an array of entries (`state.watchlist.items`):
 
   ```js
   { movieId: "inception", status: "watched", addedAt: "2026-11-10T10:00:00.000Z", watchedAt: "2026-11-12T20:00:00.000Z" }
@@ -109,7 +114,7 @@ The search, genre and sort state of the Explore page lives directly in `ExploreP
 
   Only the id and the user's tracking information are stored. Titles, posters and so on always come from the catalog.
 - Profile statistics are **not stored**: they are calculated from the watchlist every time the page renders, so they are always correct.
-- To reset the app, clear the site data in your browser (or delete the `cinetrack-watchlist` key in DevTools → Application → Local Storage).
+- To reset the app, clear the site data in your browser (or delete the `persist:root` key in DevTools → Application → Local Storage).
 
 ## Storybook
 

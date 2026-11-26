@@ -1,6 +1,13 @@
 import { Link, useNavigate, useParams } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
 import { getMovieById } from "../../data/movies";
-import { useWatchlist } from "../../hooks/useWatchlist";
+import {
+  ADD_TO_WATCHLIST,
+  REMOVE_FROM_WATCHLIST,
+  MARK_AS_WATCHED,
+  MARK_AS_PLANNED,
+  getStatus,
+} from "../../features/watchlistSlice";
 import MainLayout from "../../templates/MainLayout/MainLayout";
 import Poster from "../../components/atoms/Poster/Poster";
 import Badge from "../../components/atoms/Badge/Badge";
@@ -15,15 +22,15 @@ import "./MovieDetailsPage.css";
 function MovieDetailsPage() {
   const { movieId } = useParams();
   const navigate = useNavigate();
-  const { watchlist, getStatus, addToWatchlist, removeFromWatchlist, markAsWatched, markAsPlanned } =
-    useWatchlist();
+  const watchlist = useSelector((state) => state.watchlist.items);
+  const dispatch = useDispatch();
 
   const movie = getMovieById(movieId);
 
   // Unknown id in the URL: show a "not found" message instead of crashing.
   if (movie === undefined) {
     return (
-      <MainLayout watchlistCount={watchlist.length}>
+      <MainLayout>
         <EmptyState
           icon="🎬"
           title="Movie not found"
@@ -35,7 +42,24 @@ function MovieDetailsPage() {
     );
   }
 
-  const status = getStatus(movie.id);
+  const status = getStatus(watchlist, movie.id);
+
+  // Each button sends (dispatches) an action to the Redux store.
+  function handleAdd() {
+    dispatch(ADD_TO_WATCHLIST({ movieId: movie.id, date: new Date().toISOString() }));
+  }
+
+  function handleMarkWatched() {
+    dispatch(MARK_AS_WATCHED({ movieId: movie.id, date: new Date().toISOString() }));
+  }
+
+  function handleMarkPlanned() {
+    dispatch(MARK_AS_PLANNED(movie.id));
+  }
+
+  function handleRemove() {
+    dispatch(REMOVE_FROM_WATCHLIST(movie.id));
+  }
 
   // Choose the status badge.
   let statusBadge = <Badge>Not in your watchlist</Badge>;
@@ -47,7 +71,7 @@ function MovieDetailsPage() {
   }
 
   return (
-    <MainLayout watchlistCount={watchlist.length}>
+    <MainLayout>
       <Link to="/explore" className="movie-details__back">
         ← Back to Explore
       </Link>
@@ -79,23 +103,23 @@ function MovieDetailsPage() {
             {/* Which buttons are shown depends on the current status. */}
             <div className="movie-details__actions">
               {status === "none" && (
-                <Button onClick={() => addToWatchlist(movie.id)}>Add to watchlist</Button>
+                <Button onClick={handleAdd}>Add to watchlist</Button>
               )}
               {status !== "watched" && (
                 <Button
                   variant={status === "none" ? "secondary" : "primary"}
-                  onClick={() => markAsWatched(movie.id)}
+                  onClick={handleMarkWatched}
                 >
                   Mark as watched
                 </Button>
               )}
               {status === "watched" && (
-                <Button variant="secondary" onClick={() => markAsPlanned(movie.id)}>
+                <Button variant="secondary" onClick={handleMarkPlanned}>
                   Move back to planned
                 </Button>
               )}
               {status !== "none" && (
-                <Button variant="danger" onClick={() => removeFromWatchlist(movie.id)}>
+                <Button variant="danger" onClick={handleRemove}>
                   Remove from watchlist
                 </Button>
               )}

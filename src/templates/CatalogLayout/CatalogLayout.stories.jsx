@@ -11,7 +11,6 @@ export default {
 
 export const WithFiltersAndResults = {
   args: {
-    watchlistCount: 2,
     title: "Explore movies",
     description: "Search the full CineTrack catalog, filter by genre and sort the results.",
     filters: (

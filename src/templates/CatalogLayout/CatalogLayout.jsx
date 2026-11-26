@@ -5,9 +5,9 @@ import "./CatalogLayout.css";
 // It reuses MainLayout and places: heading -> filters -> results.
 // - filters: the filter area (a React element, for example <FilterPanel />)
 // - children: the results area (for example <MovieGrid />)
-function CatalogLayout({ watchlistCount, title, description, filters, children }) {
+function CatalogLayout({ title, description, filters, children }) {
   return (
-    <MainLayout watchlistCount={watchlistCount}>
+    <MainLayout>
       <div className="catalog-layout">
         <header className="page-header">
           <h1>{title}</h1>
